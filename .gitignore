@@ -1,0 +1,19 @@
+# Output
+target
+
+# Node
+node_modules
+
+# Logs
+logs
+test_logs
+*.log
+
+# Visual Studio Code
+.vscode
+
+# ALM
+.alm
+
+# Mac
+.DS_Store

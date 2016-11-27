@@ -1,0 +1,12 @@
+{
+  "name": "examples",
+  "version": "0.0.0",
+  "description": "Some basic examples for Wraith.IO",
+  "scripts": {
+    "hello": "node hello.js",
+    "prepublish": "cd .. && npm install"
+  },
+  "private": true,
+  "author": "Joe Hegarty <joe.hegarty@gmail.com>",
+  "license": "MIT"
+}

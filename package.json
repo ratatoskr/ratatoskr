@@ -1,0 +1,67 @@
+{
+  "name": "ratatoskr",
+  "version": "0.0.1",
+  "description": "lightweight virtual actors for node.js",
+  "main": "target/ratatoskr.js",
+  "typings": "target/ratatoskr.d.ts",
+  "scripts": {
+    "clean": "rm -rf target/",
+    "build": "tsc --declaration --outdir target/ ",
+    "cleanBuild": "npm run clean && npm run build",
+    "prepublish": "npm run cleanBuild",
+    "exec": "node target/ratatoskr",
+    "start": "npm run cleanBuild && npm run exec",
+    "test": "npm run cleanBuild && jest --forceExit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoeHegarty/ratatoskr.git"
+  },
+  "author": "Joe Hegarty <joe.hegarty@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JoeHegarty/ratatoskr/issues"
+  },
+  "homepage": "https://github.com/JoeHegarty/ratatoskr#readme",
+  "devDependencies": {
+    "@types/jest": "^16.0.0",
+    "@types/node": "^6.0.49",
+    "jest": "^17.0.3",
+    "typescript": "^2.0.10"
+  },
+  "dependencies": {
+    "@types/async": "^2.0.34",
+    "@types/redis": "^0.12.33",
+    "@types/winston": "0.0.32",
+    "async": "^2.0.34",
+    "inversify": "^3.0.0-beta.1",
+    "redis": "^2.6.3",
+    "reflect-metadata": "^0.1.8",
+    "winston": "^2.3.0"
+  },
+  "files": [
+    "src/",
+    "target/",
+    "LICENSE",
+    "README.md"
+  ],
+  "jest": {
+    "testPathDirs": [
+      "target/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/target/__tests/helpers"
+    ],
+    "testRegex": "__tests/.*\\.(ts|tsx|js)$"
+  },
+  "keywords": [
+    "actor",
+    "realtime",
+    "distributed",
+    "distributed systems",
+    "actor model",
+    "virtual actors",
+    "virtual actor"
+
+  ]
+}
