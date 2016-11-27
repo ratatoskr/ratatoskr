@@ -22,7 +22,7 @@
   "bugs": {
     "url": "https://github.com/JoeHegarty/ratatoskr/issues"
   },
-  "homepage": "https://github.com/JoeHegarty/ratatoskr#readme",
+  "homepage": "http://www.ratatoskr.io",
   "devDependencies": {
     "@types/jest": "^16.0.0",
     "@types/node": "^6.0.49",
