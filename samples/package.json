@@ -1,9 +1,8 @@
 {
   "name": "examples",
   "version": "0.0.0",
-  "description": "Some basic examples for Wraith.IO",
+  "description": "Some basic examples for Ratatoskr",
   "scripts": {
-    "hello": "node hello.js",
     "prepublish": "cd .. && npm install"
   },
   "private": true,
