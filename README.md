@@ -7,6 +7,8 @@
 
 *Note: This library is highly experimental*
 
+Ratatoskr is a lightweight virtual actor for node.js. It aims to make writing realtime distributed systems easier. 
+
 Basic Example
 =====
 1. `npm install --save ratatoskr`
@@ -32,4 +34,4 @@ ratatoskr.start().then(() => {
 
 Documentation
 =====
-Visit the [Wiki](https://github.com/JoeHegarty/ratatoskr/wiki)
+Visit the [wiki](https://github.com/JoeHegarty/ratatoskr/wiki) for more documentation.
