@@ -13,7 +13,7 @@ import Logger from "./util/logger";
 
 // Net
 import * as ClusterState from "./net/cluster-state";
-import Redis from "./net/Redis";
+import Redis from "./net/redis";
 import PubSub from "./net/pub-sub";
 import ClusterDirectory from "./net/cluster-directory";
 import ClusterMessaging from "./net/cluster-messaging";
