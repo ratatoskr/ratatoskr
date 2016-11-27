@@ -34,7 +34,7 @@ class ActorActivation {
         this.api = api;
         this.actorInstance = actorCtr();
         this.queue = async.queue(this.jobTask.bind(this), 1);
-        this._expireTime = Time.currentTime();
+        this._expireTime = Time.currentTime() + 5;
 
         this.queue.pause();
         this.acceptingWork = true;
@@ -52,10 +52,8 @@ class ActorActivation {
         return task.deferred.promise;
     }
 
-    public async onMessage(contents: any, expireInSecs: number): ActivationMessageResult {
+    public async onMessage(contents: any): ActivationMessageResult {
         if (this.acceptingWork) {
-            this._expireTime = Time.currentTime() + expireInSecs;
-
             const task: ActivationTask = {
                 contents: contents,
                 deferred: new DeferredPromise(),
@@ -146,9 +144,13 @@ class ActorActivation {
         return this._actorId;
     }
 
-    public get expireTime(): ActorId {
+    public get expireTime(): number {
         return this._expireTime;
     }
+
+    public set expireTime(val: number) {
+        this._expireTime = val;
+    } 
 }
 
 export default ActorActivation;

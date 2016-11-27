@@ -3,6 +3,7 @@ import { injectable, inject, Container } from "inversify";
 import { Types } from "../types";
 import { RatatoskrAPI } from "../api/ratatoskr-api";
 import { Time } from "../util/time";
+import { ClusterInfo } from "../net/cluster-state";
 
 import { ActorType, ActorId } from "./actor-types";
 import { ActorActivation, ActivationMessageResult } from "./actor-activation";
@@ -15,25 +16,38 @@ class ActorExecution {
     private actorFactory: ActorFactory
     private container: Container;
     private api: RatatoskrAPI;
+    private config: any;
+    private clusterInfo: ClusterInfo;
     private activations: { [key: string]: ActorActivation };
 
     constructor(
         @inject(Types.Actor.ActorDirectory) actorDirectory: ActorDirectory,
         @inject(Types.Actor.ActorFactory) actorFactory: ActorFactory,
         @inject(Types.Container) container: Container,
-        @inject(Types.RatatoskrAPI) api: RatatoskrAPI
+        @inject(Types.RatatoskrAPI) api: RatatoskrAPI,
+        @inject(Types.FullConfig) config: ClusterInfo,
+        @inject(Types.Cluster.ClusterInfo) clusterInfo: any
     ) {
         this.actorDirectory = actorDirectory;
         this.actorFactory = actorFactory;
         this.container = container;
         this.api = api;
+        this.config = config;
+        this.clusterInfo = clusterInfo;
 
         this.activations = {};
     }
 
-    public async onMessage(actorType: ActorType, actorId: ActorId, contents: any, expireInSecs: number): ActivationMessageResult {
-        const activation = await this.getOrActivate(actorType, actorId);
-        return activation.onMessage(contents, expireInSecs);
+    public async onMessage(actorType: ActorType, actorId: ActorId, contents: any): ActivationMessageResult {
+        const expiryResult = await this.updateExpiry(actorType, actorId);
+
+        if (expiryResult.expiryUpdated) {
+            const activation = await this.getOrActivate(actorType, actorId);
+            activation.expireTime = Time.currentTime() + expiryResult.expireIn;
+            return activation.onMessage(contents);
+        }
+
+        return { rejected: true, promise: null };
     }
 
     private async getOrActivate(actorType: ActorType, actorId: ActorId) {
@@ -85,6 +99,17 @@ class ActorExecution {
             await this.actorDirectory.removeActor(actorType, actorId);
             delete this.activations[activationKey];
         }
+    }
+
+    private async updateExpiry(actorType: ActorType, actorId: ActorId) {
+        // We add twice the pulse interval so we don't have a race
+        // TODO: This is pretty nasty, figure out a better way
+        const dbExpiry = this.config.defaultActorLifetimeSecs + (2 * this.config.serverPulseSecs);
+        const realExpiry = this.config.defaultActorLifetimeSecs;
+        // Attempt to update expiry
+        const didUpdateExpiry = await this.actorDirectory.updateActorExpiry(actorType, actorId, this.clusterInfo.localNode.nodeId, dbExpiry);
+
+        return { expiryUpdated: true, expireIn: realExpiry };
     }
 
     private activationKey(actorType: ActorType, actorId: ActorId) {
