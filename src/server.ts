@@ -94,6 +94,9 @@ class Server {
         clusterInfo.localNode.nodeStatus = ClusterState.NodeStatus.IDLE;
         await clusterDirectory.updateNodeEntry();
 
+        // Kill redis
+        this.container.get<Redis>(Types.Redis).stop();
+
         Logger.info("Server stopped.");
     }
 

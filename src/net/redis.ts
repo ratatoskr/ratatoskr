@@ -19,6 +19,17 @@ class Redis {
         return newClient;
     }
 
+    public stop() {
+        this.mainClient.quit(() => {
+            (<any>this.mainClient).end(true);
+        });
+
+        for (const client of this.dedicatedClients) {
+           client.quit(() => {
+                (<any>client).end(true);
+            });
+        }
+    }
 }
 
 export { RedisClient, Redis };
