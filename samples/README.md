@@ -1,5 +1,5 @@
 # Samples
-This directory contains basic samples for Wraith.IO.
+This directory contains basic samples for Ratatoskr.
 
 ## To Run Samples
 1. `npm install`
