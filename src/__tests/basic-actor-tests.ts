@@ -1,6 +1,6 @@
 import "./helpers/base-test";
 
-test('id actor basic message', () => {
+test('id actor basic', () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
@@ -21,7 +21,7 @@ test('id actor basic message', () => {
     );
 });
 
-test('actor basic message', () => {
+test('actor basic response', () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
@@ -37,6 +37,74 @@ test('actor basic message', () => {
     return server.start().then(() => {
         return server.send("user", "Joe").then((result: string) => {
             return expect(result).toBe("Hello, Joe");
+        });
+    }
+    );
+});
+
+test('actor basic promise', () => {
+    const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
+
+    let server = require("../ratatoskr")({ clusterName: clusterName });
+
+    server.actor("user", () => {
+        return class {
+            onMessage(username: string, context: any) {
+                return new Promise<string>((resolve, reject) => {
+                    resolve("Hello, " + username);
+                });
+                
+            }
+        }
+    });
+
+    return server.start().then(() => {
+        return server.send("user", "Joe").then((result: string) => {
+            return expect(result).toBe("Hello, Joe");
+        });
+    }
+    );
+});
+
+test('actor basic exception', () => {
+    const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
+
+    let server = require("../ratatoskr")({ clusterName: clusterName });
+
+    server.actor("user", () => {
+        return class {
+            onMessage(username: string, context: any) {
+                throw `Could not find user ${username}`;
+            }
+        }
+    });
+
+    return server.start().then(() => {
+        return server.send("user", "Joe").catch((result: string) => {
+            return expect(result).toBe("Could not find user Joe");
+        });
+    }
+    );
+});
+
+test('actor promise exception', () => {
+    const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
+
+    let server = require("../ratatoskr")({ clusterName: clusterName });
+
+    server.actor("user", () => {
+        return class {
+            onMessage(username: string, context: any) {
+                return new Promise<string>((resolve, reject) => {
+                    reject(`Could not find user ${username}`);
+                });
+            }
+        }
+    });
+
+    return server.start().then(() => {
+        return server.send("user", "Joe").catch((result: string) => {
+            return expect(result).toBe("Could not find user Joe");
         });
     }
     );
@@ -73,7 +141,7 @@ test('singleton actor to actor messages', () => {
     );
 });
 
-test('onactivate test', () => {
+test('onactivate trigger', () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
