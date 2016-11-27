@@ -152,12 +152,13 @@ class ActorMessaging {
         if (actorOwner == this.clusterInfo.localNode.nodeId) {
             // We remove 10% twice the pulse interval so we don't have a race
             // TODO: This is pretty nasty, figure out a better way
-            const newExpiry = this.config.defaultActorLifetimeSecs - (2 * this.config.serverPulseSecs);
+            const dbExpiry = this.config.defaultActorLifetimeSecs;
+            const realExpiry = this.config.defaultActorLifetimeSecs - (2 * this.config.serverPulseSecs);
             // Attempt to update expiry
-            const didUpdateExpiry = await this.actorDirectory.updateActorExpiry(message.actorType, message.actorId, this.clusterInfo.localNode.nodeId, newExpiry);
+            const didUpdateExpiry = await this.actorDirectory.updateActorExpiry(message.actorType, message.actorId, this.clusterInfo.localNode.nodeId, dbExpiry);
             if (didUpdateExpiry) {
                 // We still own the actor 
-                const result = await this.actorExecution.onMessage(message.actorType, message.actorId, message.contents, this.config.defaultActorLifetimeSecs);
+                const result = await this.actorExecution.onMessage(message.actorType, message.actorId, message.contents, realExpiry);
                 if (!result.rejected) {
                     const reponse = await result.promise;
                     return { proxiedMessage: false, response: reponse };

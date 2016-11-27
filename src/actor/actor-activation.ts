@@ -19,27 +19,28 @@ type ActivationTask = {
 };
 
 class ActorActivation {
-    private actorType: ActorType;
-    private actorId: ActorId;
+    private _actorType: ActorType;
+    private _actorId: ActorId;
+    private _expireTime: number;
     private actorInstance: any;
     private api: RatatoskrAPI;
     private queue: AsyncQueue<any>;
-    private expireTime: number;
+
     private acceptingWork: boolean;
 
     constructor(actorType: ActorType, actorId: ActorId, actorCtr: () => void, api: RatatoskrAPI) {
-        this.actorType = actorType;
-        this.actorId = actorId;
+        this._actorType = actorType;
+        this._actorId = actorId;
         this.api = api;
         this.actorInstance = actorCtr();
         this.queue = async.queue(this.jobTask.bind(this), 1);
-        this.expireTime = Time.currentTime();
+        this._expireTime = Time.currentTime();
 
         this.queue.pause();
         this.acceptingWork = true;
     }
 
-    public async activate() {
+    public async onActivate() {
         const task: ActivationTask = {
             contents: null,
             deferred: new DeferredPromise(),
@@ -53,7 +54,7 @@ class ActorActivation {
 
     public async onMessage(contents: any, expireInSecs: number): ActivationMessageResult {
         if (this.acceptingWork) {
-            this.expireTime = Time.currentTime() + expireInSecs;
+            this._expireTime = Time.currentTime() + expireInSecs;
 
             const task: ActivationTask = {
                 contents: contents,
@@ -69,7 +70,7 @@ class ActorActivation {
         return { rejected: true };
     }
 
-    public async deactivate() {
+    public async onDeactivate() {
         this.acceptingWork = false;
 
         const task: ActivationTask = {
@@ -84,11 +85,10 @@ class ActorActivation {
         return result;
     }
 
-    private generateContext() : CallContext
-    {
+    private generateContext(): CallContext {
         return {
-            actorType: this.actorType,
-            actorId: this.actorId,
+            actorType: this._actorType,
+            actorId: this._actorId,
             api: this.api
         };
     }
@@ -136,6 +136,18 @@ class ActorActivation {
             task.deferred.reject(e);
             callback();
         }
+    }
+
+    public get actorType(): ActorType {
+        return this._actorType;
+    }
+
+    public get actorId(): ActorId {
+        return this._actorId;
+    }
+
+    public get expireTime(): ActorId {
+        return this._expireTime;
     }
 }
 

@@ -2,6 +2,7 @@ import { injectable, inject, Container } from "inversify";
 
 import { Types } from "../types";
 import { RatatoskrAPI } from "../api/ratatoskr-api";
+import { Time } from "../util/time";
 
 import { ActorType, ActorId } from "./actor-types";
 import { ActorActivation, ActivationMessageResult } from "./actor-activation";
@@ -35,33 +36,52 @@ class ActorExecution {
         return activation.onMessage(contents, expireInSecs);
     }
 
-    private async getOrActivate(actorType: ActorType, actorId: ActorId)
-    {
+    private async getOrActivate(actorType: ActorType, actorId: ActorId) {
         const activationKey = this.activationKey(actorType, actorId);
         let activation = this.activations[activationKey];
-        if(!activation) {
+        if (!activation) {
             const actorCtr = this.actorFactory.getInstance(actorType);
             activation = new ActorActivation(actorType, actorId, actorCtr, this.api);
             this.activations[activationKey] = activation; // Do this before we await on anything so it's effectively atomic
-            try 
-            {
-                await activation.activate();
+            try {
+                await activation.onActivate();
             }
-            catch(e)
-            {
+            catch (e) {
                 await this.deactivate(actorType, actorId);
                 throw "Could not activate actor: " + e;
             }
-            
+
         }
         return activation;
+    }
+
+    public async killExpiredActors() {
+        const toBeRemoved: string[] = [];
+        for (const activationKey in this.activations) {
+            const activation = this.activations[activationKey];
+            if (activation.expireTime < Time.currentTime()) {
+                toBeRemoved.push(activationKey);
+            }
+        }
+
+        for (const activationKey of toBeRemoved) {
+            const activation = this.activations[activationKey];
+            await this.deactivate(activation.actorType, activation.actorId);
+        }
+    }
+
+    public async killAllActors() {
+        for (const activationKey in this.activations) {
+            const activation = this.activations[activationKey];
+            await this.deactivate(activation.actorType, activation.actorId);
+        }
     }
 
     public async deactivate(actorType: ActorType, actorId: ActorId) {
         const activationKey = this.activationKey(actorType, actorId);
         const activation = this.activations[activationKey];
-        if(activation) {
-            await activation.deactivate();
+        if (activation) {
+            await activation.onDeactivate();
             await this.actorDirectory.removeActor(actorType, actorId);
             delete this.activations[activationKey];
         }

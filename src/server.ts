@@ -71,10 +71,30 @@ class Server {
     private async pulse() {
         await this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory).updateCluster();
         await this.container.get<ActorMessaging>(Types.Actor.ActorMessaging).updatePendingMessages();
+        await this.container.get<ActorExecution>(Types.Actor.ActorExecution).killExpiredActors();
     }
 
     public async stop() {
+        Logger.info("Stopping Ratatoskr server...");
+
+        const clusterDirectory = this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory);
+        const clusterInfo = this.container.get<ClusterState.ClusterInfo>(Types.Cluster.ClusterInfo);
+
+        // Stop the pulse
         clearInterval(this.timer);
+
+        // Set node status
+        clusterInfo.localNode.nodeStatus = ClusterState.NodeStatus.STOPPING;
+        await clusterDirectory.updateNodeEntry();
+        
+        // Kill all active actors
+        await this.container.get<ActorExecution>(Types.Actor.ActorExecution).killAllActors();
+
+        // Set status again
+        clusterInfo.localNode.nodeStatus = ClusterState.NodeStatus.IDLE;
+        await clusterDirectory.updateNodeEntry();
+
+        Logger.info("Server stopped.");
     }
 
     private internalPulse() {
