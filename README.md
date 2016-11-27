@@ -7,7 +7,7 @@
 
 *Note: This library is highly experimental*
 
-Ratatoskr is a lightweight virtual actor for node.js. It aims to make writing realtime distributed systems easier. 
+Ratatoskr is a lightweight virtual actor framework for node.js. It aims to make writing realtime distributed systems easier by leveraging the advantage of virtual actors to allow developers to focus on application logic instead of how their application will be distributed.
 
 Basic Example
 =====
