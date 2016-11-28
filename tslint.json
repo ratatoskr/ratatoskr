@@ -6,7 +6,7 @@
     "forin": false,
     "object-literal-sort-keys": false,
     "interface-name": [true, "never-prefix"],
-    "member-ordering": [false,
+    "member-ordering": [true,
       "public-before-private",
       "static-before-instance",
       "variables-before-functions"
