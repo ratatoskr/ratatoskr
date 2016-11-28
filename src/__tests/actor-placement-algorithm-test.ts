@@ -50,13 +50,11 @@ test("placement node status", () => {
     }
 });
 
-test("placement no node", () =>
-{
+test("placement no node", () => {
     const clusterInfo = new ClusterInfo("placement-test", new NodeInfo("placement-test"));
     const actorPlacement = new ActorPlacement(clusterInfo);
 
-    expect(() =>
-    {
+    expect(() => {
         // Try and place even though we know it can't be handled
         actorPlacement.placeActor("someType", "someId");
     }).toThrow();

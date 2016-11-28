@@ -31,29 +31,27 @@ class RatatoskrAPI {
         let message = {};
         let actorId = "no_id";
 
-        if (args.length == 2) {
+        if (args.length === 2) {
             actorId = args[0];
             message = args[1];
-        }
-        else if (args.length == 1) {
+        } else if (args.length === 1) {
             message = args[0];
-        }
-        else {
+        } else {
             throw "Invalid arguments for send";
         }
 
         return this.container.get<ActorMessaging>(Types.Actor.ActorMessaging).sendActorRequest(actorType, actorId, message);
     }
 
-    clusterInfo() : ClusterInfo {
+    public clusterInfo(): ClusterInfo {
         return this.container.get<ClusterInfo>(Types.Cluster.ClusterInfo);
     }
 
-    public getServer() : Server {
+    public getServer(): Server {
         return this.server;
     }
 
-    public getContainer() : Container {
+    public getContainer(): Container {
         return this.container;
     }
 }

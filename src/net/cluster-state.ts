@@ -47,13 +47,12 @@ export class ClusterInfo {
         this.localNode = localNode;
     }
 
-    nodeCount(): number {
+    public nodeCount(): number {
         let nodeCount = 0;
         for (const node in this.cluster) {
             ++nodeCount;
         }
         return nodeCount;
     }
-
 
 }

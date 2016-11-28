@@ -4,98 +4,81 @@ import RedisActorDirectory from "../actor/redis-actor-directory";
 import Redis from "../net/redis";
 import {ClusterInfo, NodeInfo} from "../net/cluster-state";
 
-function createActorDirectory()
-{
+function createActorDirectory() {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
     const redis = new Redis();
     const clusterInfo = new ClusterInfo(clusterName, new NodeInfo("testNode"));
     return new RedisActorDirectory(redis, clusterInfo);
 }
 
-test("redis actor directory cluster placement", () =>
-{
+test("redis actor directory cluster placement", () => {
     const actorDirectory = createActorDirectory();
     const ACTOR_TYPE = "clusterPlacementActorTest";
     const randomId = Math.floor((Math.random() * 9999));
 
 
-    return actorDirectory.getActorLocation(ACTOR_TYPE, randomId).then((result) =>
-    {
+    return actorDirectory.getActorLocation(ACTOR_TYPE, randomId).then((result) => {
         // Should be null first
         expect(result).toBe(null);
     })
-    .then(() =>
-    {
+    .then(() => {
         // Set to "myNode"
         return actorDirectory.putOrGetActorLocation(ACTOR_TYPE, randomId, "myNode", 10);
     })
-    .then((result) =>
-    {
+    .then((result) => {
         // Verify it is "myNode"
         expect(result).toBe("myNode");
     })
-    .then(() =>
-    {
+    .then(() => {
         // Try to set it to "otherNode"
         return actorDirectory.putOrGetActorLocation(ACTOR_TYPE, randomId, "otherNode", 10);
     })
-    .then((result) =>
-    {
+    .then((result) => {
         // Verify it did not change to "otherNode" but is still "myNode"
         expect(result).toBe("myNode");
     })
-    .then(() =>
-    {
+    .then(() => {
         // Verify "myNode" can update the timer
         return actorDirectory.updateActorExpiry(ACTOR_TYPE, randomId, "myNode", 10);
     })
-    .then((result) =>
-    {
+    .then((result) => {
         expect(result).toBe(true);
     })
-    .then(() =>
-    {
+    .then(() => {
         // Verify "otherNode" can not update the timer
         return actorDirectory.updateActorExpiry(ACTOR_TYPE, randomId, "otherNode", 10);
-    }).then((result) =>
-    {
+    }).then((result) => {
         return expect(result).toBe(false);
     });
 });
 
-test("redis actor directory ttl persistence", () =>
-{
+test("redis actor directory ttl persistence", () => {
     const actorDirectory = createActorDirectory();
-    const ACTOR_TYPE = "clusterPlacementActorTTLTest"
+    const ACTOR_TYPE = "clusterPlacementActorTTLTest";
     const ACTOR_TTL = 1;
     const randomId = Math.floor((Math.random() * 9999));
 
-    return actorDirectory.putOrGetActorLocation(ACTOR_TYPE, randomId, "myNode", ACTOR_TTL).then(result =>
-    {
+    return actorDirectory.putOrGetActorLocation(ACTOR_TYPE, randomId, "myNode", ACTOR_TTL).then(result => {
         // Make sure it was placed
         expect(result).toBe("myNode");
 
         // Set ttl
         return actorDirectory.updateActorExpiry(ACTOR_TYPE, randomId, "myNode", ACTOR_TTL);
     })
-    .then(result =>
-    {
+    .then(result => {
         // Make sure it was set
         expect(result).toBe(true);
 
         // Finish this promise after double the ttl
-        return new Promise((resolve) =>
-        {
+        return new Promise((resolve) => {
             setTimeout(() => resolve(), (ACTOR_TTL * 2) * 1000);
         });
     })
-    .then(() =>
-    {
+    .then(() => {
         // Attempt to get it
         return actorDirectory.getActorLocation(ACTOR_TYPE, randomId);
     })
-    .then((result) =>
-    {
+    .then((result) => {
         // Check it was removed and is null
         return expect(result).toBe(null);
     });

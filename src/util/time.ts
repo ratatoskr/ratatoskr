@@ -1,5 +1,5 @@
 class Time {
-    static currentTime() : number {
+    public static currentTime(): number {
         return Date.now() / 1000 | 0;
     }
 }

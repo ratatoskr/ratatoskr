@@ -1,16 +1,16 @@
 import "./helpers/base-test";
 
-test('id actor basic', () => {
+test("id actor basic", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
 
     server.actor("user", () => {
         return class {
-            onMessage(username: string, context: any) {
+            public onMessage(username: string, context: any) {
                 return "Hello, " + username + " your id is" + context.actorId;
             }
-        }
+        };
     });
 
     return server.start().then(() => {
@@ -21,17 +21,17 @@ test('id actor basic', () => {
     );
 });
 
-test('actor basic response', () => {
+test("actor basic response", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
 
     server.actor("user", () => {
         return class {
-            onMessage(username: string, context: any) {
+            public onMessage(username: string, context: any) {
                 return "Hello, " + username;
             }
-        }
+        };
     });
 
     return server.start().then(() => {
@@ -42,20 +42,19 @@ test('actor basic response', () => {
     );
 });
 
-test('actor basic promise', () => {
+test("actor basic promise", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
 
     server.actor("user", () => {
         return class {
-            onMessage(username: string, context: any) {
+            public onMessage(username: string, context: any) {
                 return new Promise<string>((resolve, reject) => {
                     resolve("Hello, " + username);
                 });
-                
             }
-        }
+        };
     });
 
     return server.start().then(() => {
@@ -66,17 +65,17 @@ test('actor basic promise', () => {
     );
 });
 
-test('actor basic exception', () => {
+test("actor basic exception", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
 
     server.actor("user", () => {
         return class {
-            onMessage(username: string, context: any) {
+            public onMessage(username: string, context: any) {
                 throw `Could not find user ${username}`;
             }
-        }
+        };
     });
 
     return server.start().then(() => {
@@ -87,19 +86,19 @@ test('actor basic exception', () => {
     );
 });
 
-test('actor promise exception', () => {
+test("actor promise exception", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
 
     server.actor("user", () => {
         return class {
-            onMessage(username: string, context: any) {
+            public onMessage(username: string, context: any) {
                 return new Promise<string>((resolve, reject) => {
                     reject(`Could not find user ${username}`);
                 });
             }
-        }
+        };
     });
 
     return server.start().then(() => {
@@ -110,27 +109,27 @@ test('actor promise exception', () => {
     );
 });
 
-test('singleton actor to actor messages', () => {
+test("singleton actor to actor messages", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
 
     server.actor("uppercaseActor", () => {
         return class {
-            onMessage(message: string) {
+            public onMessage(message: string) {
                 return message.toUpperCase();
             }
-        }
-    })
+        };
+    });
 
     server.actor("helloUppercaseActor", () => {
         return class {
-            onMessage(username: string, context: any) {
+            public onMessage(username: string, context: any) {
                 return context.api.send("uppercaseActor", username).then((result: string) => {
                     return "Hello, " + result;
                 });
             }
-        }
+        };
     });
 
     return server.start().then(() => {
@@ -141,7 +140,7 @@ test('singleton actor to actor messages', () => {
     );
 });
 
-test('onactivate trigger', () => {
+test("onactivate trigger", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
     let server = require("../ratatoskr")({ clusterName: clusterName });
@@ -154,17 +153,16 @@ test('onactivate trigger', () => {
                 this.didActivate = false;
             }
 
-            onActivate() {
+            public onActivate() {
                 this.didActivate = true;
             }
 
-            onMessage(question: string) {
-                if (question == "didActivate") {
+            public onMessage(question: string) {
+                if (question === "didActivate") {
                     return this.didActivate;
-                    
                 }
             }
-        }
+        };
     });
 
     return server.start().then(() => {

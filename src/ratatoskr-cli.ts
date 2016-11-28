@@ -8,7 +8,7 @@ function handleShutdown() {
     ratatoskr.stop().then(() => process.exit(0));
 }
 
-process.on('SIGTERM', handleShutdown);
-process.on('SIGINT', handleShutdown);
+process.on("SIGTERM", handleShutdown);
+process.on("SIGINT", handleShutdown);
 
 startServer();

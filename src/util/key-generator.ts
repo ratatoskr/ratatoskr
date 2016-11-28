@@ -4,6 +4,7 @@ import {NodeId} from "../net/cluster-state";
 class KeyGenerator {
     public static key(type: string, args: { [key: string]: any }) {
         let prefix = type + "/";
+
         for (let arg in args) {
             prefix += arg + ":" + args[arg] + "/";
         }

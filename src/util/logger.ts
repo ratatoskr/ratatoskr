@@ -5,7 +5,7 @@ Winston.cli();
 const logger: Winston.LoggerInstance = new (Winston.Logger)({
     transports:
     [
-        new (Winston.transports.Console)({ level: 'info' })
+        new (Winston.transports.Console)({ level: "info" })
     ]
 });
 

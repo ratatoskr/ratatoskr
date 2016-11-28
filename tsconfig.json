@@ -3,7 +3,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es6",
-        "types": ["reflect-metadata"],
+        "types": ["reflect-metadata", "jest"],
         "sourceMap": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,

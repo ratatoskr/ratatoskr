@@ -21,14 +21,14 @@ class ActorPlacement {
 
         for (const nodeId in cluster) {
             const node = cluster[nodeId];
-            if (node.nodeStatus == NodeStatus.RUNNING) {
+            if (node.nodeStatus === NodeStatus.RUNNING) {
                 candidateNodes.push(nodeId);
             }
         }
 
         Logger.debug("Found %d nodes capable of hosting '%s'", candidateNodes.length, actorType);
 
-        if (candidateNodes.length == 0) {
+        if (candidateNodes.length === 0) {
             throw "Could not find node capable of hosting '" + actorType + "'";
         }
 

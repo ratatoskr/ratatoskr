@@ -33,7 +33,7 @@ type ActorMessage = {
 type InFlightMessage = {
     deferred: DeferredPromise<any>,
     startTime: number
-}
+};
 
 @injectable()
 class ActorMessaging {
@@ -68,13 +68,17 @@ class ActorMessaging {
         this.clusterMessaging.addHandler(ACTOR_SUBSYSTEM, this.onMessage.bind(this));
     }
 
-    public async sendActorRequest(actorType: ActorType, actorId: ActorId, contents: any, oneWay: boolean = false, respondTo?: NodeId): Promise<any> {
+    public async sendActorRequest(
+        actorType: ActorType, actorId: ActorId, contents: any, oneWay = false, respondTo?: NodeId
+    ): Promise<any> {
 
         // Find or place actor
         let actorLocation: NodeId = await this.actorDirectory.getActorLocation(actorType, actorId);
         if (!actorLocation) {
             actorLocation = this.actorPlacement.placeActor(actorType, actorId);
-            actorLocation = await this.actorDirectory.putOrGetActorLocation(actorType, actorId, this.clusterInfo.localNode.nodeId, this.config.defaultActorLifetimeSecs);
+            actorLocation = await this.actorDirectory.putOrGetActorLocation(
+                actorType, actorId, this.clusterInfo.localNode.nodeId, this.config.defaultActorLifetimeSecs
+            );
         }
 
         // Did we find one
@@ -84,7 +88,7 @@ class ActorMessaging {
 
         // Construct message payload
         const messageId = this.messageCounter++;
-        respondTo = respondTo == undefined ? this.clusterInfo.localNode.nodeId : respondTo;
+        respondTo = respondTo === undefined ? this.clusterInfo.localNode.nodeId : respondTo;
         const actorMessage: ActorMessage = {
             messageType: ActorMessageType.REQUEST,
             actorType: actorType,
@@ -102,7 +106,7 @@ class ActorMessaging {
             const inFlightMessage: InFlightMessage = {
                 deferred: deferred,
                 startTime: Time.currentTime()
-            }
+            };
             this.messagesInFlight[messageId] = inFlightMessage;
         }
 
@@ -149,7 +153,7 @@ class ActorMessaging {
     private async handleActorRequest(message: ActorMessage) {
         // Do we actually own it?
         const actorOwner = await this.actorDirectory.getActorLocation(message.actorType, message.actorId);
-        if (actorOwner == this.clusterInfo.localNode.nodeId) {
+        if (actorOwner === this.clusterInfo.localNode.nodeId) {
             const result = await this.actorExecution.onMessage(message.actorType, message.actorId, message.contents);
             if (!result.rejected) {
                 const reponse = await result.promise;
@@ -178,19 +182,19 @@ class ActorMessaging {
                 }
             }
         ).catch(
-            error => {
-                this.sendErrorResponse(message, error).catch(
+            handlingError => {
+                this.sendErrorResponse(message, handlingError).catch(
                     error => {
                         Logger.error("Could not send error response", message, error);
                     }
                 );
             }
-            );
+        );
     }
 
     private onActorResponseMessage(message: ActorMessage) {
         const inFlight = this.messagesInFlight[message.messageId];
-        if (inFlight != undefined) {
+        if (inFlight !== undefined) {
             inFlight.deferred.resolve(message.contents);
             delete this.messagesInFlight[message.messageId];
         } else {
@@ -200,7 +204,7 @@ class ActorMessaging {
 
     private onActorErrorMessage(message: ActorMessage) {
         const inFlight = this.messagesInFlight[message.messageId];
-        if (inFlight != undefined) {
+        if (inFlight !== undefined) {
             inFlight.deferred.reject(message.contents);
             delete this.messagesInFlight[message.messageId];
         } else {

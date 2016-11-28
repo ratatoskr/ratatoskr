@@ -49,7 +49,7 @@ class ClusterMessaging {
         const payload: ClusterMessage = JSON.parse(message);
 
         const handlers = this.handlers[payload.subsystem];
-        if (handlers != undefined) {
+        if (handlers !== undefined) {
             for (const handler of handlers) {
                 handler(payload.contents, payload.headers);
             }
@@ -66,7 +66,7 @@ class ClusterMessaging {
     }
 
     public addHandler(subsystem: string, handler: ClusterMessageHandler) {
-        if (this.handlers[subsystem] == undefined) {
+        if (this.handlers[subsystem] === undefined) {
             this.handlers[subsystem] = [];
         }
 
@@ -81,7 +81,7 @@ class ClusterMessaging {
             headers: headers
         };
 
-        const rawMessage : string = JSON.stringify(payload);
+        const rawMessage: string = JSON.stringify(payload);
         return this.pubSub.publish(channelName, rawMessage);
     }
 }
