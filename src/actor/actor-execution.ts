@@ -13,7 +13,7 @@ import { ActorFactory } from "./actor-factory";
 @injectable()
 class ActorExecution {
     private actorDirectory: ActorDirectory;
-    private actorFactory: ActorFactory
+    private actorFactory: ActorFactory;
     private container: Container;
     private api: RatatoskrAPI;
     private config: any;
@@ -59,8 +59,7 @@ class ActorExecution {
             this.activations[activationKey] = activation; // Do this before we await on anything so it's effectively atomic
             try {
                 await activation.onActivate();
-            }
-            catch (e) {
+            } catch (e) {
                 await this.deactivate(actorType, actorId);
                 throw "Could not activate actor: " + e;
             }
@@ -107,7 +106,9 @@ class ActorExecution {
         const dbExpiry = this.config.defaultActorLifetimeSecs + (2 * this.config.serverPulseSecs);
         const realExpiry = this.config.defaultActorLifetimeSecs;
         // Attempt to update expiry
-        const didUpdateExpiry = await this.actorDirectory.updateActorExpiry(actorType, actorId, this.clusterInfo.localNode.nodeId, dbExpiry);
+        const didUpdateExpiry = await this.actorDirectory.updateActorExpiry(
+            actorType, actorId, this.clusterInfo.localNode.nodeId, dbExpiry
+        );
 
         return { expiryUpdated: true, expireIn: realExpiry };
     }

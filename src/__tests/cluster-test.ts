@@ -4,7 +4,7 @@ import { Container } from "inversify";
 import { Types } from "../types";
 import { RatatoskrAPI } from "../api/ratatoskr-api";
 
-test('multi member cluster', () => {
+test("multi member cluster", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
     const ratatoskr = require("../ratatoskr");
     let server1: RatatoskrAPI = ratatoskr({ clusterName: clusterName });

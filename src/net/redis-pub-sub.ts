@@ -37,7 +37,7 @@ class RedisPubSub implements PubSub {
             this.addHandler(channelName, callback);
         }
 
-        if (this.subscriptions.indexOf(channelName) == -1) {
+        if (this.subscriptions.indexOf(channelName) === -1) {
             this.subscriptions.push(channelName);
             return new Promise<void>((resolve, reject) => {
                 this.subClient.subscribe(channelName, (err: any, res: any) => {
@@ -74,7 +74,7 @@ class RedisPubSub implements PubSub {
 
     public async unsubscribe(channelName: string): Promise<void> {
         const index = this.subscriptions.indexOf(channelName);
-        if (index != -1) {
+        if (index !== -1) {
              this.subscriptions.splice(index, 1);
              return new Promise<void>((resolve, reject) => {
                 this.subClient.unsubscribe(channelName, (err: any, res: any) => {

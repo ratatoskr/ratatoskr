@@ -3,7 +3,7 @@ import "./helpers/base-test";
 import { ClusterInfo, NodeInfo } from "../net/cluster-state";
 import { RedisPubSub } from "../net/redis-pub-sub";
 import { Redis } from "../net/redis";
-import Config from "../config/config"
+import Config from "../config/config";
 
 function createPubSub() {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
@@ -44,10 +44,10 @@ test("redis multi subscriber", done => {
         expect(payload).toBe(MESSAGE_CONTENT);
 
         // Did we get 2?
-        if (++callCount == 2) {
+        if (++callCount === 2) {
             done();
         }
-    }
+    };
 
     // Create clients
     const pubSub = createPubSub();

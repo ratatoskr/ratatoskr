@@ -10,7 +10,7 @@ type CallContext = {
     api: RatatoskrAPI,
     actorId: ActorId,
     actorType: ActorType
-}
+};
 
 type ActivationTask = {
     contents?: any,
@@ -96,12 +96,12 @@ class ActorActivation {
             let result: any = undefined;
 
             let methodToCall = this.actorInstance[task.methodToCall];
-            if (methodToCall && typeof methodToCall == "function") {
+            if (methodToCall && typeof methodToCall === "function") {
                 methodToCall = methodToCall.bind(this.actorInstance);
 
                 if (methodToCall.length > 1) {
                     result = methodToCall(task.contents, this.generateContext());
-                } else if (methodToCall.length == 1) {
+                } else if (methodToCall.length === 1) {
                     if (task.contents) {
                         result = methodToCall(task.contents);
                     } else {
@@ -112,25 +112,22 @@ class ActorActivation {
                 }
             }
 
-            if (result == undefined) {
+            if (result === undefined) {
                 task.deferred.resolve();
                 callback();
-            }
-            else if (typeof result["then"] == "function") {
+            } else if (typeof result["then"] === "function") {
                 result.then((output: any) => {
                     task.deferred.resolve(output);
                     callback();
                 }, (output: any) => {
                     task.deferred.reject(output);
                     callback();
-                })
-            }
-            else {
+                });
+            } else {
                 task.deferred.resolve(result);
                 callback();
             }
-        }
-        catch (e) {
+        } catch (e) {
             task.deferred.reject(e);
             callback();
         }
@@ -150,7 +147,7 @@ class ActorActivation {
 
     public set expireTime(val: number) {
         this._expireTime = val;
-    } 
+    };
 }
 
 export default ActorActivation;

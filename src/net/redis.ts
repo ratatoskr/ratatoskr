@@ -7,8 +7,9 @@ class Redis {
     private dedicatedClients: RedisClient[] = [];
 
     public shared() {
-        if (!this.mainClient)
+        if (!this.mainClient) {
             this.mainClient = CreateRedisClient();
+        }
 
         return this.mainClient;
     }

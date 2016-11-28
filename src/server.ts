@@ -86,7 +86,7 @@ class Server {
         // Set node status
         clusterInfo.localNode.nodeStatus = ClusterState.NodeStatus.STOPPING;
         await clusterDirectory.updateNodeEntry();
-        
+
         // Kill all active actors
         await this.container.get<ActorExecution>(Types.Actor.ActorExecution).killAllActors();
 
@@ -103,7 +103,7 @@ class Server {
     private internalPulse() {
         this.pulse().catch((error) => {
             Logger.error(`Pulse Error: ${error}`);
-        })
+        });
     }
 
     private init(opts: any) {

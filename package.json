@@ -6,8 +6,9 @@
   "typings": "target/ratatoskr.d.ts",
   "scripts": {
     "clean": "rm -rf target/",
+    "lint": "tslint -c tslint.json src/**/*.ts",
     "build": "tsc --declaration --outdir target/ ",
-    "cleanBuild": "npm run clean && npm run build",
+    "cleanBuild": "npm run clean && npm run lint && npm run build",
     "prepublish": "npm run cleanBuild",
     "exec": "node target/ratatoskr",
     "start": "npm run cleanBuild && npm run exec",
@@ -27,6 +28,7 @@
     "@types/jest": "^16.0.0",
     "@types/node": "^6.0.49",
     "jest": "^17.0.3",
+    "tslint": "^4.0.2",
     "typescript": "^2.0.10"
   },
   "dependencies": {

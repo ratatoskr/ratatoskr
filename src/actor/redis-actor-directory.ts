@@ -20,7 +20,7 @@ class RedisActorDirectory implements ActorDirectory {
         this.clusterInfo = clusterInfo;
     }
 
-    async getActorLocation(actorType: ActorType, actorId: ActorId): Promise<NodeId> {
+    public async getActorLocation(actorType: ActorType, actorId: ActorId): Promise<NodeId> {
         const actorLocation = await new Promise<NodeId>((resolve, reject) => {
             const actorKey = KeyGenerator.actorPlacementKey(this.clusterInfo.clusterName, actorType, actorId);
             this.redis.shared().get(actorKey, (err, res) => {
@@ -35,7 +35,7 @@ class RedisActorDirectory implements ActorDirectory {
         return actorLocation;
     }
 
-    async putOrGetActorLocation(actorType: ActorType, actorId: ActorId, nodeId: NodeId, expireSecs: number): Promise<NodeId> {
+    public async putOrGetActorLocation(actorType: ActorType, actorId: ActorId, nodeId: NodeId, expireSecs: number): Promise<NodeId> {
         let currentLocation = await this.getActorLocation(actorType, actorId);
 
         // Did we find anything?
@@ -51,7 +51,7 @@ class RedisActorDirectory implements ActorDirectory {
                 });
             });
 
-            if (setResult == 0) { // Someone else beat us
+            if (setResult === 0) { // Someone else beat us
                 currentLocation = await this.getActorLocation(actorType, actorId);
             } else { // We won
                 currentLocation = nodeId;
@@ -61,7 +61,7 @@ class RedisActorDirectory implements ActorDirectory {
         return currentLocation;
     }
 
-    async removeActor(actorType: ActorType, actorId: ActorId): Promise<void> {
+    public async removeActor(actorType: ActorType, actorId: ActorId): Promise<void> {
         await new Promise((resolve, reject) => {
             const actorKey = KeyGenerator.actorPlacementKey(this.clusterInfo.clusterName, actorType, actorId);
             this.redis.shared().del(actorKey, (err: any, res: any) => {
@@ -74,7 +74,7 @@ class RedisActorDirectory implements ActorDirectory {
         });
     }
 
-    async updateActorExpiry(actorType: ActorType, actorId: ActorId, nodeId: NodeId, expireSecs: number): Promise<boolean> {
+    public async updateActorExpiry(actorType: ActorType, actorId: ActorId, nodeId: NodeId, expireSecs: number): Promise<boolean> {
         const script = '\
             local currentNode = redis.call("GET", KEYS[1]) \
             if(currentNode == ARGV[1]) then \
@@ -94,7 +94,7 @@ class RedisActorDirectory implements ActorDirectory {
             });
         });
 
-        return result == 1;
+        return result === 1;
     }
 }
 

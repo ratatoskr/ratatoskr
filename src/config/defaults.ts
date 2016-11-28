@@ -11,6 +11,6 @@ const defaultOptions = {
         clusterDirectory: "./net/redis-cluster-directory",
         actorDirectory: "./actor/redis-actor-directory"
     }
-}
+};
 
 export default defaultOptions;
