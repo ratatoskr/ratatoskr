@@ -1,6 +1,6 @@
 {
   "name": "ratatoskr",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "lightweight virtual actors for node.js",
   "main": "target/ratatoskr.js",
   "typings": "target/ratatoskr.d.ts",
