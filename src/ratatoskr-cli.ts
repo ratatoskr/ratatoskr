@@ -1,3 +1,4 @@
+// tslint:disable-next-line
 const ratatoskr = require("./ratatoskr")();
 
 function startServer() {

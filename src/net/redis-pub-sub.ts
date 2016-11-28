@@ -1,10 +1,9 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { Types } from "../types";
 import { Logger } from "../util/logger";
-import { PubSub, MessageHandler } from "./pub-sub";
-import { Redis, RedisClient } from "./redis";
 import { ClusterInfo, NodeInfo } from "./cluster-state";
-
+import { MessageHandler, PubSub } from "./pub-sub";
+import { Redis, RedisClient } from "./redis";
 
 @injectable()
 class RedisPubSub implements PubSub {

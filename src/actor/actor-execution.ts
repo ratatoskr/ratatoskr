@@ -1,14 +1,14 @@
-import { injectable, inject, Container } from "inversify";
+import { Container, inject, injectable } from "inversify";
 
-import { Types } from "../types";
 import { RatatoskrAPI } from "../api/ratatoskr-api";
-import { Time } from "../util/time";
 import { ClusterInfo } from "../net/cluster-state";
+import { Types } from "../types";
+import { Time } from "../util/time";
 
-import { ActorType, ActorId } from "./actor-types";
-import { ActorActivation, ActivationMessageResult } from "./actor-activation";
+import { ActivationMessageResult, ActorActivation } from "./actor-activation";
 import { ActorDirectory } from "./actor-directory";
 import { ActorFactory } from "./actor-factory";
+import { ActorId, ActorType } from "./actor-types";
 
 @injectable()
 class ActorExecution {
@@ -50,25 +50,7 @@ class ActorExecution {
         return { rejected: true, promise: null };
     }
 
-    private async getOrActivate(actorType: ActorType, actorId: ActorId) {
-        const activationKey = this.activationKey(actorType, actorId);
-        let activation = this.activations[activationKey];
-        if (!activation) {
-            const actorCtr = this.actorFactory.getInstance(actorType);
-            activation = new ActorActivation(actorType, actorId, actorCtr, this.api);
-            this.activations[activationKey] = activation; // Do this before we await on anything so it's effectively atomic
-            try {
-                await activation.onActivate();
-            } catch (e) {
-                await this.deactivate(actorType, actorId);
-                throw "Could not activate actor: " + e;
-            }
-
-        }
-        return activation;
-    }
-
-    public async killExpiredActors() {
+        public async killExpiredActors() {
         const toBeRemoved: string[] = [];
         for (const activationKey in this.activations) {
             const activation = this.activations[activationKey];
@@ -98,6 +80,25 @@ class ActorExecution {
             await this.actorDirectory.removeActor(actorType, actorId);
             delete this.activations[activationKey];
         }
+    }
+
+    private async getOrActivate(actorType: ActorType, actorId: ActorId) {
+        const activationKey = this.activationKey(actorType, actorId);
+        let activation = this.activations[activationKey];
+        if (!activation) {
+            const actorCtr = this.actorFactory.getInstance(actorType);
+            activation = new ActorActivation(actorType, actorId, actorCtr, this.api);
+            // Do this before we await on anything so it's effectively atomic
+            this.activations[activationKey] = activation;
+            try {
+                await activation.onActivate();
+            } catch (e) {
+                await this.deactivate(actorType, actorId);
+                throw "Could not activate actor: " + e;
+            }
+
+        }
+        return activation;
     }
 
     private async updateExpiry(actorType: ActorType, actorId: ActorId) {

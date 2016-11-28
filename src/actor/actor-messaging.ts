@@ -1,17 +1,17 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { Types } from "../types";
 
 import { DeferredPromise } from "../util/deferred-promise";
-import { Time } from "../util/time";
 import { Logger } from "../util/logger";
+import { Time } from "../util/time";
 
 import { ClusterMessaging, MessageHeaders } from "../net/cluster-messaging";
-import { NodeInfo, NodeId, ClusterInfo } from "../net/cluster-state";
+import { ClusterInfo, NodeId, NodeInfo } from "../net/cluster-state";
 
-import { ActorPlacement } from "./actor-placement";
 import { ActorDirectory } from "./actor-directory";
-import { ActorId, ActorType } from "./actor-types";
 import { ActorExecution } from "./actor-execution";
+import { ActorPlacement } from "./actor-placement";
+import { ActorId, ActorType } from "./actor-types";
 
 const ACTOR_SUBSYSTEM = "actor";
 
@@ -91,11 +91,11 @@ class ActorMessaging {
         respondTo = respondTo === undefined ? this.clusterInfo.localNode.nodeId : respondTo;
         const actorMessage: ActorMessage = {
             messageType: ActorMessageType.REQUEST,
-            actorType: actorType,
-            actorId: actorId,
-            contents: contents,
-            messageId: messageId,
-            respondTo: respondTo
+            actorType,
+            actorId,
+            contents,
+            messageId,
+            respondTo
         };
 
         const deferred: DeferredPromise<any> = new DeferredPromise();
@@ -104,7 +104,7 @@ class ActorMessaging {
             deferred.resolve(null);
         } else {
             const inFlightMessage: InFlightMessage = {
-                deferred: deferred,
+                deferred,
                 startTime: Time.currentTime()
             };
             this.messagesInFlight[messageId] = inFlightMessage;
@@ -113,6 +113,17 @@ class ActorMessaging {
         await this.clusterMessaging.sendMessage(actorLocation, ACTOR_SUBSYSTEM, actorMessage);
 
         return deferred.promise;
+    }
+
+    public async updatePendingMessages() {
+        const currentTime = Time.currentTime();
+        for (const messageId in this.messagesInFlight) {
+            const messageInFlight = this.messagesInFlight[messageId];
+            if (currentTime > messageInFlight.startTime + this.config.actorMessageTimeoutSecs) {
+                messageInFlight.deferred.reject("Timed out");
+                delete this.messagesInFlight[messageId];
+            }
+        }
     }
 
     private async sendNormalResponse(originalMessage: ActorMessage, response: any) {
@@ -139,17 +150,6 @@ class ActorMessaging {
         return this.clusterMessaging.sendMessage(originalMessage.respondTo, ACTOR_SUBSYSTEM, actorMessage);
     }
 
-    public async updatePendingMessages() {
-        const currentTime = Time.currentTime();
-        for (const messageId in this.messagesInFlight) {
-            const messageInFlight = this.messagesInFlight[messageId];
-            if (currentTime > messageInFlight.startTime + this.config.actorMessageTimeoutSecs) {
-                messageInFlight.deferred.reject("Timed out");
-                delete this.messagesInFlight[messageId];
-            }
-        }
-    }
-
     private async handleActorRequest(message: ActorMessage) {
         // Do we actually own it?
         const actorOwner = await this.actorDirectory.getActorLocation(message.actorType, message.actorId);
@@ -172,24 +172,24 @@ class ActorMessaging {
 
     private onActorRequestMessage(message: ActorMessage) {
         this.handleActorRequest(message).then(
-            result => {
+            (result) => {
                 if (!result.proxiedMessage) {
                     this.sendNormalResponse(message, result.response).catch(
-                        error => {
+                        (error) => {
                             Logger.error("Could not send normal response", message, error);
                         }
                     );
                 }
             }
         ).catch(
-            handlingError => {
+            (handlingError) => {
                 this.sendErrorResponse(message, handlingError).catch(
-                    error => {
+                    (error) => {
                         Logger.error("Could not send error response", message, error);
                     }
                 );
             }
-        );
+            );
     }
 
     private onActorResponseMessage(message: ActorMessage) {
@@ -222,6 +222,8 @@ class ActorMessaging {
                 break;
             case ActorMessageType.ERROR:
                 this.onActorErrorMessage(message);
+                break;
+            default:
                 break;
         }
     }

@@ -1,8 +1,8 @@
 import * as async from "async";
-import { Time } from "../util/time";
-import { DeferredPromise } from "../util/deferred-promise";
 import { RatatoskrAPI } from "../api/ratatoskr-api";
-import { ActorType, ActorId } from "./actor-types";
+import { DeferredPromise } from "../util/deferred-promise";
+import { Time } from "../util/time";
+import { ActorId, ActorType } from "./actor-types";
 
 export type ActivationMessageResult = Promise<{ rejected: boolean, promise?: Promise<any> }>;
 
@@ -19,9 +19,9 @@ type ActivationTask = {
 };
 
 class ActorActivation {
-    private _actorType: ActorType;
-    private _actorId: ActorId;
-    private _expireTime: number;
+    private internalActorType: ActorType;
+    private internalActorId: ActorId;
+    private internalExpireTime: number;
     private actorInstance: any;
     private api: RatatoskrAPI;
     private queue: AsyncQueue<any>;
@@ -29,12 +29,12 @@ class ActorActivation {
     private acceptingWork: boolean;
 
     constructor(actorType: ActorType, actorId: ActorId, actorCtr: () => void, api: RatatoskrAPI) {
-        this._actorType = actorType;
-        this._actorId = actorId;
+        this.internalActorType = actorType;
+        this.internalActorId = actorId;
         this.api = api;
         this.actorInstance = actorCtr();
         this.queue = async.queue(this.jobTask.bind(this), 1);
-        this._expireTime = Time.currentTime() + 5;
+        this.internalExpireTime = Time.currentTime() + 5;
 
         this.queue.pause();
         this.acceptingWork = true;
@@ -55,7 +55,7 @@ class ActorActivation {
     public async onMessage(contents: any): ActivationMessageResult {
         if (this.acceptingWork) {
             const task: ActivationTask = {
-                contents: contents,
+                contents,
                 deferred: new DeferredPromise(),
                 methodToCall: "onMessage"
             };
@@ -85,8 +85,8 @@ class ActorActivation {
 
     private generateContext(): CallContext {
         return {
-            actorType: this._actorType,
-            actorId: this._actorId,
+            actorType: this.internalActorType,
+            actorId: this.internalActorId,
             api: this.api
         };
     }
@@ -115,6 +115,7 @@ class ActorActivation {
             if (result === undefined) {
                 task.deferred.resolve();
                 callback();
+            // tslint:disable-next-line
             } else if (typeof result["then"] === "function") {
                 result.then((output: any) => {
                     task.deferred.resolve(output);
@@ -134,20 +135,20 @@ class ActorActivation {
     }
 
     public get actorType(): ActorType {
-        return this._actorType;
+        return this.internalActorType;
     }
 
     public get actorId(): ActorId {
-        return this._actorId;
+        return this.internalActorId;
     }
 
     public get expireTime(): number {
-        return this._expireTime;
+        return this.internalExpireTime;
     }
 
     public set expireTime(val: number) {
-        this._expireTime = val;
-    };
+        this.internalExpireTime = val;
+    }
 }
 
 export default ActorActivation;

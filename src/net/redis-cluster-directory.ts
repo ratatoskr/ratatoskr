@@ -1,9 +1,9 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { Types } from "../types";
 import { KeyGenerator } from "../util/key-generator";
 import { Logger } from "../util/logger";
 import { ClusterDirectory } from "./cluster-directory";
-import { NodeInfo, NodeCollection, ClusterInfo } from "./cluster-state";
+import { ClusterInfo, NodeCollection, NodeInfo } from "./cluster-state";
 import { Redis } from "./redis";
 
 @injectable()
@@ -69,7 +69,8 @@ class RedisClusterDirectory implements ClusterDirectory {
     public async updateNodeEntry(): Promise<void> {
         const nodeKey = KeyGenerator.nodeKey(this.clusterInfo.clusterName, this.clusterInfo.localNode.nodeId);
         await new Promise((resolve, reject) => {
-            this.redis.shared().setex(nodeKey, this.nodeEntrySecs, JSON.stringify(this.clusterInfo.localNode), (err: any, res: any) => {
+            this.redis.shared().setex(nodeKey, this.nodeEntrySecs, JSON.stringify(this.clusterInfo.localNode),
+            (err: any, res: any) => {
                 if (err) {
                     reject(err);
                 } else {

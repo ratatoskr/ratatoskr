@@ -1,5 +1,5 @@
-import { RedisClient, createClient as CreateRedisClient } from "redis";
 import { injectable } from "inversify";
+import { createClient as CreateRedisClient, RedisClient } from "redis";
 
 @injectable()
 class Redis {
@@ -22,12 +22,12 @@ class Redis {
 
     public stop() {
         this.mainClient.quit(() => {
-            (<any>this.mainClient).end(true);
+            (<any> this.mainClient).end(true);
         });
 
         for (const client of this.dedicatedClients) {
            client.quit(() => {
-                (<any>client).end(true);
+                (<any> client).end(true);
             });
         }
     }

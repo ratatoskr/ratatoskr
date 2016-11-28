@@ -1,9 +1,9 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { Types } from "../types";
-import { Logger } from "../util/logger";
 import { KeyGenerator } from "../util/key-generator";
-import { PubSub } from "./pub-sub";
+import { Logger } from "../util/logger";
 import { ClusterInfo, NodeId } from "./cluster-state";
+import { PubSub } from "./pub-sub";
 
 export type MessageHeaders = { [key: string]: any };
 
@@ -45,17 +45,6 @@ class ClusterMessaging {
         await this.pubSub.subscribe(this.nodeChannelKey, this.onMessage.bind(this));
     }
 
-    private onMessage(channelName: string, message: string) {
-        const payload: ClusterMessage = JSON.parse(message);
-
-        const handlers = this.handlers[payload.subsystem];
-        if (handlers !== undefined) {
-            for (const handler of handlers) {
-                handler(payload.contents, payload.headers);
-            }
-        }
-    }
-
     public sendMessage(targetNode: NodeId, subsystem: string, contents: any, headers?: MessageHeaders) {
         const targetChannel: string = KeyGenerator.nodeKey(this.clusterInfo.clusterName, targetNode);
         return this.publishToChannel(targetChannel, subsystem, contents, headers);
@@ -73,12 +62,28 @@ class ClusterMessaging {
         this.handlers[subsystem].push(handler);
     }
 
-    private async publishToChannel(channelName: string, subsystem: string, contents: any, headers: MessageHeaders): Promise<number> {
+    private onMessage(channelName: string, message: string) {
+        const payload: ClusterMessage = JSON.parse(message);
+
+        const handlers = this.handlers[payload.subsystem];
+        if (handlers !== undefined) {
+            for (const handler of handlers) {
+                handler(payload.contents, payload.headers);
+            }
+        }
+    }
+
+    private async publishToChannel(
+        channelName: string,
+        subsystem: string,
+        contents: any,
+        headers: MessageHeaders
+    ): Promise<number> {
         const payload: ClusterMessage = {
             sender: this.clusterInfo.localNode.nodeId,
-            subsystem: subsystem,
-            contents: contents,
-            headers: headers
+            subsystem,
+            contents,
+            headers
         };
 
         const rawMessage: string = JSON.stringify(payload);

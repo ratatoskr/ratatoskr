@@ -1,10 +1,10 @@
 import { Container } from "inversify";
-import { Types } from "../types";
-import { Server } from "../server";
-import { ActorType, ActorId } from "../actor/actor-types";
 import { ActorFactory } from "../actor/actor-factory";
 import { ActorMessaging } from "../actor/actor-messaging";
+import { ActorId, ActorType } from "../actor/actor-types";
 import {ClusterInfo, NodeInfo} from "../net/cluster-state";
+import { Server } from "../server";
+import { Types } from "../types";
 
 class RatatoskrAPI {
     private server: Server;
@@ -40,7 +40,8 @@ class RatatoskrAPI {
             throw "Invalid arguments for send";
         }
 
-        return this.container.get<ActorMessaging>(Types.Actor.ActorMessaging).sendActorRequest(actorType, actorId, message);
+        const actorMessaging = this.container.get<ActorMessaging>(Types.Actor.ActorMessaging);
+        return actorMessaging.sendActorRequest(actorType, actorId, message);
     }
 
     public clusterInfo(): ClusterInfo {

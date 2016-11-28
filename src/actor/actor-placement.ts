@@ -1,9 +1,8 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
+import { ClusterInfo, NodeId, NodeInfo, NodeStatus } from "../net/cluster-state";
 import { Types } from "../types";
 import Logger from "../util/logger";
-import { ClusterInfo, NodeStatus, NodeInfo, NodeId } from "../net/cluster-state";
 import { ActorId, ActorType } from "./actor-types";
-
 
 @injectable()
 class ActorPlacement {

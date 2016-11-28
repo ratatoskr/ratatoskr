@@ -3,7 +3,7 @@ import "./helpers/base-test";
 test("id actor basic", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("user", () => {
         return class {
@@ -24,7 +24,7 @@ test("id actor basic", () => {
 test("actor basic response", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("user", () => {
         return class {
@@ -45,7 +45,7 @@ test("actor basic response", () => {
 test("actor basic promise", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("user", () => {
         return class {
@@ -68,7 +68,7 @@ test("actor basic promise", () => {
 test("actor basic exception", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("user", () => {
         return class {
@@ -89,7 +89,7 @@ test("actor basic exception", () => {
 test("actor promise exception", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("user", () => {
         return class {
@@ -112,7 +112,7 @@ test("actor promise exception", () => {
 test("singleton actor to actor messages", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
 
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("uppercaseActor", () => {
         return class {
@@ -142,8 +142,7 @@ test("singleton actor to actor messages", () => {
 
 test("onactivate trigger", () => {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
-
-    let server = require("../ratatoskr")({ clusterName: clusterName });
+    let server = require("../ratatoskr")({ clusterName });
 
     server.actor("onActivateTestActor", () => {
         return class {

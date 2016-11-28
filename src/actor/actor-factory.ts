@@ -1,4 +1,4 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
 import {ActorType} from "./actor-types";
 
 @injectable()
@@ -26,6 +26,7 @@ class ActorFactory {
         actorObject = actorObject();
 
         // Now we check if we really have an implementation
+        // tslint:disable-next-line
         if (actorObject["constructor"] !== undefined && typeof actorObject["constructor"] === "function") {
             actorConstructor = () => new actorObject();
         }

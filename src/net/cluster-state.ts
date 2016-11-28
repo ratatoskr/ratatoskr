@@ -1,4 +1,4 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
 import Types from "../types";
 import UUID from "../util/uuid";
 
@@ -54,5 +54,4 @@ export class ClusterInfo {
         }
         return nodeCount;
     }
-
 }

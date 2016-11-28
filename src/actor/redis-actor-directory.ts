@@ -1,11 +1,11 @@
-import { injectable, inject } from "inversify";
+import { inject, injectable } from "inversify";
+import { ClusterInfo, NodeId } from "../net/cluster-state";
+import { Redis } from "../net/redis";
 import { Types } from "../types";
 import { KeyGenerator } from "../util/key-generator";
 import { Logger } from "../util/logger";
-import { NodeId, ClusterInfo } from "../net/cluster-state";
-import { Redis } from "../net/redis";
-import { ActorId, ActorType } from "./actor-types";
 import { ActorDirectory } from "./actor-directory";
+import { ActorId, ActorType } from "./actor-types";
 
 @injectable()
 class RedisActorDirectory implements ActorDirectory {
@@ -35,7 +35,12 @@ class RedisActorDirectory implements ActorDirectory {
         return actorLocation;
     }
 
-    public async putOrGetActorLocation(actorType: ActorType, actorId: ActorId, nodeId: NodeId, expireSecs: number): Promise<NodeId> {
+    public async putOrGetActorLocation(
+        actorType: ActorType,
+        actorId: ActorId,
+        nodeId: NodeId,
+        expireSecs: number
+    ): Promise<NodeId> {
         let currentLocation = await this.getActorLocation(actorType, actorId);
 
         // Did we find anything?
@@ -74,7 +79,12 @@ class RedisActorDirectory implements ActorDirectory {
         });
     }
 
-    public async updateActorExpiry(actorType: ActorType, actorId: ActorId, nodeId: NodeId, expireSecs: number): Promise<boolean> {
+    public async updateActorExpiry(
+        actorType: ActorType,
+        actorId: ActorId,
+        nodeId: NodeId,
+        expireSecs: number
+    ): Promise<boolean> {
         const script = '\
             local currentNode = redis.call("GET", KEYS[1]) \
             if(currentNode == ARGV[1]) then \

@@ -15,15 +15,15 @@ class KeyGenerator {
     }
 
     public static clusterKey(clusterName: string) {
-        return KeyGenerator.key("cluster", { clusterName: clusterName });
+        return KeyGenerator.key("cluster", { clusterName });
     }
 
     public static nodeKey(clusterName: string, nodeId: NodeId) {
-        return KeyGenerator.key("node", { clusterName: clusterName, nodeId: nodeId });
+        return KeyGenerator.key("node", { clusterName, nodeId });
     }
 
     public static actorPlacementKey(clusterName: string, actorType: ActorType, actorId: ActorId) {
-        return KeyGenerator.key("actorPlacement", { clusterName: clusterName, actorType: actorType, actorId: actorId });
+        return KeyGenerator.key("actorPlacement", { clusterName, actorType, actorId });
     }
 }
 

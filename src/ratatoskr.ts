@@ -1,7 +1,7 @@
-import Server from "./server";
 import API from "./api/ratatoskr-api";
+import Server from "./server";
 
-const Ratatoskr = function (opts: any) {
+const Ratatoskr = (opts: any) => {
     const server = new Server(opts);
     return server.getAPI();
 };

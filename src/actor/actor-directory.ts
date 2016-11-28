@@ -1,6 +1,6 @@
-import { ActorType, ActorId } from "./actor-types";
-import { Types } from "../types";
 import { NodeId } from "../net/cluster-state";
+import { Types } from "../types";
+import { ActorId, ActorType } from "./actor-types";
 
 interface ActorDirectory {
     getActorLocation(actorType: ActorType, actorId: ActorId): Promise<NodeId>;

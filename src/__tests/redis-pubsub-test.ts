@@ -1,9 +1,9 @@
 import "./helpers/base-test";
 
-import { ClusterInfo, NodeInfo } from "../net/cluster-state";
-import { RedisPubSub } from "../net/redis-pub-sub";
-import { Redis } from "../net/redis";
 import Config from "../config/config";
+import { ClusterInfo, NodeInfo } from "../net/cluster-state";
+import { Redis } from "../net/redis";
+import { RedisPubSub } from "../net/redis-pub-sub";
 
 function createPubSub() {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
@@ -12,8 +12,7 @@ function createPubSub() {
     return new RedisPubSub(redis, clusterInfo);
 }
 
-
-test("redis single subscriber", done => {
+test("redis single subscriber", (done) => {
     const MESSAGE_CONTENT = "meep-moop-boop";
 
     const randomId = "channel" + Math.floor((Math.random() * 9999));
@@ -32,7 +31,7 @@ test("redis single subscriber", done => {
     });
 });
 
-test("redis multi subscriber", done => {
+test("redis multi subscriber", (done) => {
     const MESSAGE_CONTENT = "multi-moop-boop";
 
     const randomId = "channel" + Math.floor((Math.random() * 9999));

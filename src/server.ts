@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 // Common
+// tslint:disable-next-line
 const Package = require("../package.json");
 import Types from "./types";
 
@@ -12,18 +13,18 @@ import Config from "./config/config";
 import Logger from "./util/logger";
 
 // Net
-import * as ClusterState from "./net/cluster-state";
-import Redis from "./net/redis";
-import PubSub from "./net/pub-sub";
 import ClusterDirectory from "./net/cluster-directory";
 import ClusterMessaging from "./net/cluster-messaging";
+import * as ClusterState from "./net/cluster-state";
+import PubSub from "./net/pub-sub";
+import Redis from "./net/redis";
 
 // Actor
 import ActorDirectory from "./actor/actor-directory";
-import ActorPlacement from "./actor/actor-placement";
+import ActorExecution from "./actor/actor-execution";
 import ActorFactory from "./actor/actor-factory";
 import ActorMessaging from "./actor/actor-messaging";
-import ActorExecution from "./actor/actor-execution";
+import ActorPlacement from "./actor/actor-placement";
 
 // API
 import RatatoskrAPI from "./api/ratatoskr-api";
@@ -33,7 +34,6 @@ class Server {
     private config: any;
     private api: RatatoskrAPI;
     private timer: number;
-
 
     public constructor(opts?: any) {
         this.init(opts);
@@ -68,13 +68,11 @@ class Server {
         Logger.info("Server started.");
     }
 
-    private async pulse() {
-        await this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory).updateCluster();
-        await this.container.get<ActorMessaging>(Types.Actor.ActorMessaging).updatePendingMessages();
-        await this.container.get<ActorExecution>(Types.Actor.ActorExecution).killExpiredActors();
+    public getAPI(): RatatoskrAPI {
+        return this.api;
     }
 
-    public async stop() {
+        public async stop() {
         Logger.info("Stopping Ratatoskr server...");
 
         const clusterDirectory = this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory);
@@ -100,6 +98,12 @@ class Server {
         Logger.info("Server stopped.");
     }
 
+    private async pulse() {
+        await this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory).updateCluster();
+        await this.container.get<ActorMessaging>(Types.Actor.ActorMessaging).updatePendingMessages();
+        await this.container.get<ActorExecution>(Types.Actor.ActorExecution).killExpiredActors();
+    }
+
     private internalPulse() {
         this.pulse().catch((error) => {
             Logger.error(`Pulse Error: ${error}`);
@@ -114,6 +118,7 @@ class Server {
         this.config = Config.createOptions(opts);
 
         // Configure logging
+        // tslint:disable-next-line
         Logger.transports["console"].level = this.config.logLevel;
 
         // Log out welcome
@@ -132,11 +137,15 @@ class Server {
         this.container.bind<Container>(Types.Container).toConstantValue(this.container);
 
         // Cluster
-        this.container.bind<ClusterState.NodeInfo>(Types.Cluster.LocalNode).to(ClusterState.NodeInfo).inSingletonScope();
-        this.container.bind<ClusterState.ClusterInfo>(Types.Cluster.ClusterInfo).to(ClusterState.ClusterInfo).inSingletonScope();
+        this.container.bind<ClusterState.NodeInfo>(Types.Cluster.LocalNode)
+            .to(ClusterState.NodeInfo).inSingletonScope();
+        this.container.bind<ClusterState.ClusterInfo>(Types.Cluster.ClusterInfo)
+            .to(ClusterState.ClusterInfo).inSingletonScope();
         const clusterDirectory = require(this.config.systems.clusterDirectory);
-        this.container.bind<ClusterDirectory>(Types.Cluster.ClusterDirectory).to(clusterDirectory.default).inSingletonScope();
-        this.container.bind<ClusterMessaging>(Types.Cluster.ClusterMessaging).to(ClusterMessaging).inSingletonScope();
+        this.container.bind<ClusterDirectory>(Types.Cluster.ClusterDirectory)
+            .to(clusterDirectory.default).inSingletonScope();
+        this.container.bind<ClusterMessaging>(Types.Cluster.ClusterMessaging)
+            .to(ClusterMessaging).inSingletonScope();
 
         // Redis
         this.container.bind<Redis>(Types.Redis).to(Redis).inSingletonScope();
@@ -164,10 +173,6 @@ class Server {
         for (const key in this.config) {
             this.container.bind(Types.Config(key)).toConstantValue(this.config[key]);
         }
-    }
-
-    public getAPI(): RatatoskrAPI {
-        return this.api;
     }
 }
 

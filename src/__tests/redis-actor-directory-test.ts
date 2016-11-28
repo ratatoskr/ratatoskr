@@ -1,8 +1,8 @@
 import "./helpers/base-test";
 
 import RedisActorDirectory from "../actor/redis-actor-directory";
-import Redis from "../net/redis";
 import {ClusterInfo, NodeInfo} from "../net/cluster-state";
+import Redis from "../net/redis";
 
 function createActorDirectory() {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));
@@ -15,7 +15,6 @@ test("redis actor directory cluster placement", () => {
     const actorDirectory = createActorDirectory();
     const ACTOR_TYPE = "clusterPlacementActorTest";
     const randomId = Math.floor((Math.random() * 9999));
-
 
     return actorDirectory.getActorLocation(ACTOR_TYPE, randomId).then((result) => {
         // Should be null first
@@ -58,14 +57,14 @@ test("redis actor directory ttl persistence", () => {
     const ACTOR_TTL = 1;
     const randomId = Math.floor((Math.random() * 9999));
 
-    return actorDirectory.putOrGetActorLocation(ACTOR_TYPE, randomId, "myNode", ACTOR_TTL).then(result => {
+    return actorDirectory.putOrGetActorLocation(ACTOR_TYPE, randomId, "myNode", ACTOR_TTL).then((result) => {
         // Make sure it was placed
         expect(result).toBe("myNode");
 
         // Set ttl
         return actorDirectory.updateActorExpiry(ACTOR_TYPE, randomId, "myNode", ACTOR_TTL);
     })
-    .then(result => {
+    .then((result) => {
         // Make sure it was set
         expect(result).toBe(true);
 
