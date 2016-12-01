@@ -9,7 +9,7 @@ export type ActivationMessageResult = Promise<{ rejected: boolean, promise?: Pro
 
 type ActivationJob = {
     contents?: any,
-    methodTarget?: (...args: any[]) => void
+    methodTarget?: (...args: any[]) => any
     deferred: DeferredPromise<any>,
     jobType: JobType
 };
@@ -115,7 +115,7 @@ class ActorActivation {
         this.timers[name] = timerHandle;
     }
 
-    public removeTimer(name: string) {
+    public unregisterTimer(name: string) {
         if (this.timers[name]) {
             clearInterval(this.timers[name]);
             delete this.timers[name];
@@ -154,7 +154,7 @@ class ActorActivation {
 
                 case JobType.TIMER:
                     if (task.methodTarget) {
-                        task.methodTarget();
+                        result = task.methodTarget();
                     }
                     break;
 

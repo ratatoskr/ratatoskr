@@ -19,8 +19,8 @@ class ActorContext {
         this.activation.registerTimer(name, intervalMs, recurring, callback);
     }
 
-    public removeReminder(name: string) {
-        this.activation.removeTimer(name);
+    public unregisterTimer(name: string) {
+        this.activation.unregisterTimer(name);
     }
 }
 
