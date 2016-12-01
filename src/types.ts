@@ -18,7 +18,8 @@ let Types = {
         ActorPlacement: Symbol("actor.actorPlacement"),
         ActorFactory: Symbol("actor.actorFactory"),
         ActorMessaging: Symbol("actor.actorMessaging"),
-        ActorExecution: Symbol("actor.actorExecution")
+        ActorExecution: Symbol("actor.actorExecution"),
+        ActorReminders: Symbol("actor.actorReminders")
     }
 };
 
