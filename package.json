@@ -36,7 +36,7 @@
     "@types/redis": "^0.12.33",
     "@types/winston": "0.0.32",
     "async": "^2.0.34",
-    "inversify": "^3.0.0-beta.1",
+    "inversify": "^3.0.0-beta.2",
     "redis": "^2.6.3",
     "reflect-metadata": "^0.1.8",
     "winston": "^2.3.0"
