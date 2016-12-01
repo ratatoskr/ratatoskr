@@ -77,7 +77,7 @@ class Server {
         return this.api;
     }
 
-        public async stop() {
+    public async stop() {
         Logger.info("Stopping Ratatoskr server...");
 
         const clusterDirectory = this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory);

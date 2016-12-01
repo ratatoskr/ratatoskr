@@ -1,5 +1,5 @@
 const defaultOptions = {
-    logLevel: "silly",
+    logLevel: "debug",
     clusterName: "ratatoskr-default-cluster",
     nodeName: "ratatoskr-node",
     serverPulseSecs: 5,
