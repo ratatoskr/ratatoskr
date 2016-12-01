@@ -1,9 +1,9 @@
-import "./helpers/base-test";
+import "../__helpers/base-test";
 
-import Config from "../config/config";
-import { ClusterInfo, NodeInfo } from "../net/cluster-state";
-import { Redis } from "../net/redis";
-import { RedisPubSub } from "../net/redis-pub-sub";
+import Config from "../../config/config";
+import { ClusterInfo, NodeInfo } from "../../net/cluster-state";
+import { Redis } from "../../net/redis";
+import { RedisPubSub } from "../../net/redis-pub-sub";
 
 function createPubSub() {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));

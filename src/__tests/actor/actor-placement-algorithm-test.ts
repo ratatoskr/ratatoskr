@@ -1,7 +1,7 @@
-import "./helpers/base-test";
+import "../__helpers/base-test";
 
-import { ActorPlacement } from "../actor/actor-placement";
-import { ClusterInfo, NodeInfo, NodeStatus } from "../net/cluster-state";
+import { ActorPlacement } from "../../actor/actor-placement";
+import { ClusterInfo, NodeInfo, NodeStatus } from "../../net/cluster-state";
 
 function shallowCopy(item: any) {
     const output: any = {};

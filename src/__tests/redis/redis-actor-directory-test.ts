@@ -1,8 +1,8 @@
-import "./helpers/base-test";
+import "../__helpers/base-test";
 
-import RedisActorDirectory from "../actor/redis-actor-directory";
-import {ClusterInfo, NodeInfo} from "../net/cluster-state";
-import Redis from "../net/redis";
+import RedisActorDirectory from "../../actor/redis-actor-directory";
+import {ClusterInfo, NodeInfo} from "../../net/cluster-state";
+import Redis from "../../net/redis";
 
 function createActorDirectory() {
     const clusterName = "randomCluster" + Math.floor((Math.random() * 9999));

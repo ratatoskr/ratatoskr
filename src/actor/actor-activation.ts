@@ -2,20 +2,23 @@ import * as async from "async";
 import { RatatoskrAPI } from "../api/ratatoskr-api";
 import { DeferredPromise } from "../util/deferred-promise";
 import { Time } from "../util/time";
+import { ActorContext } from "./actor-context";
 import { ActorId, ActorType } from "./actor-types";
 
 export type ActivationMessageResult = Promise<{ rejected: boolean, promise?: Promise<any> }>;
 
-type CallContext = {
-    api: RatatoskrAPI,
-    actorId: ActorId,
-    actorType: ActorType
+type ActivationJob = {
+    contents?: any,
+    methodTarget?: (...args: any[]) => void
+    deferred: DeferredPromise<any>,
+    jobType: JobType
 };
 
-type ActivationTask = {
-    contents?: any,
-    deferred: DeferredPromise<any>,
-    methodToCall: string;
+enum JobType {
+    MESSAGE,
+    ACTIVATED,
+    DEACTIVATED,
+    TIMER
 };
 
 class ActorActivation {
@@ -23,28 +26,29 @@ class ActorActivation {
     private internalActorId: ActorId;
     private internalExpireTime: number;
     private actorInstance: any;
-    private api: RatatoskrAPI;
     private queue: AsyncQueue<any>;
+    private actorContext: ActorContext;
+    private timers: {[key: string]: NodeJS.Timer};
 
     private acceptingWork: boolean;
 
     constructor(actorType: ActorType, actorId: ActorId, actorCtr: () => void, api: RatatoskrAPI) {
         this.internalActorType = actorType;
         this.internalActorId = actorId;
-        this.api = api;
         this.actorInstance = actorCtr();
         this.queue = async.queue(this.jobTask.bind(this), 1);
         this.internalExpireTime = Time.currentTime() + 5;
+        this.actorContext = new ActorContext(actorType, actorId, api, this);
 
         this.queue.pause();
         this.acceptingWork = true;
+        this.timers = {};
     }
 
     public async onActivate() {
-        const task: ActivationTask = {
-            contents: null,
+        const task: ActivationJob = {
             deferred: new DeferredPromise(),
-            methodToCall: "onActivate"
+            jobType: JobType.ACTIVATED
         };
 
         this.queue.push(task);
@@ -54,10 +58,10 @@ class ActorActivation {
 
     public async onMessage(contents: any): ActivationMessageResult {
         if (this.acceptingWork) {
-            const task: ActivationTask = {
+            const task: ActivationJob = {
                 contents,
                 deferred: new DeferredPromise(),
-                methodToCall: "onMessage"
+                jobType: JobType.MESSAGE
             };
 
             this.queue.push(task);
@@ -71,10 +75,11 @@ class ActorActivation {
     public async onDeactivate() {
         this.acceptingWork = false;
 
-        const task: ActivationTask = {
-            contents: null,
+        this.stopAllTimers();
+
+        const task: ActivationJob = {
             deferred: new DeferredPromise(),
-            methodToCall: "onDeactivate"
+            jobType: JobType.DEACTIVATED
         };
 
         this.queue.push(task);
@@ -83,39 +88,84 @@ class ActorActivation {
         return result;
     }
 
-    private generateContext(): CallContext {
-        return {
-            actorType: this.internalActorType,
-            actorId: this.internalActorId,
-            api: this.api
+    public registerTimer(name: string, intervalMs: number, recurring: boolean, callback: (...args: any[]) => void) {
+
+        const jobCallback = (job: ActivationJob) => {
+            this.queue.push(job);
         };
+
+        const realJob: ActivationJob = {
+            jobType: JobType.TIMER,
+            methodTarget: callback,
+            deferred: new DeferredPromise()
+        };
+
+        let timerHandle: NodeJS.Timer;
+
+        if (this.timers[name]) {
+            throw `Timer '${name}' already exists`;
+        }
+
+        if (recurring) {
+            timerHandle = setInterval(jobCallback, intervalMs, realJob);
+        } else {
+            timerHandle = setTimeout(jobCallback, intervalMs, realJob);
+        }
+
+        this.timers[name] = timerHandle;
     }
 
-    private jobTask(task: ActivationTask, callback: any) {
+    public removeTimer(name: string) {
+        if (this.timers[name]) {
+            clearInterval(this.timers[name]);
+            delete this.timers[name];
+        }
+    }
+
+    private stopAllTimers() {
+        for (const timer in this.timers) {
+            clearInterval(this.timers[timer]);
+            delete this.timers[timer];
+        }
+    }
+
+    private jobTask(task: ActivationJob, callback: any) {
         try {
             let result: any = undefined;
 
-            let methodToCall = this.actorInstance[task.methodToCall];
-            if (methodToCall && typeof methodToCall === "function") {
-                methodToCall = methodToCall.bind(this.actorInstance);
-
-                if (methodToCall.length > 1) {
-                    result = methodToCall(task.contents, this.generateContext());
-                } else if (methodToCall.length === 1) {
-                    if (task.contents) {
-                        result = methodToCall(task.contents);
-                    } else {
-                        result = methodToCall(this.generateContext());
+            switch (task.jobType) {
+                case JobType.MESSAGE:
+                    if (this.actorInstance.onMessage) {
+                        result = this.actorInstance.onMessage(task.contents, this.actorContext);
                     }
-                } else {
-                    result = methodToCall();
-                }
+                    break;
+
+                case JobType.ACTIVATED:
+                    if (this.actorInstance.onActivate) {
+                        result = this.actorInstance.onActivate(this.actorContext);
+                    }
+                    break;
+
+                case JobType.DEACTIVATED:
+                    if (this.actorInstance.onDeactivate) {
+                        result = this.actorInstance.onDeactivate(this.actorContext);
+                    }
+                    break;
+
+                case JobType.TIMER:
+                    if (task.methodTarget) {
+                        task.methodTarget();
+                    }
+                    break;
+
+                default:
+                    break;
             }
 
             if (result === undefined) {
                 task.deferred.resolve();
                 callback();
-            // tslint:disable-next-line
+                // tslint:disable-next-line
             } else if (typeof result["then"] === "function") {
                 result.then((output: any) => {
                     task.deferred.resolve(output);

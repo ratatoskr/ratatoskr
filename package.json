@@ -52,7 +52,7 @@
       "target/"
     ],
     "testPathIgnorePatterns": [
-      "<rootDir>/target/__tests/helpers"
+      "<rootDir>/target/__tests/__helpers"
     ],
     "testRegex": "__tests/.*\\.(ts|tsx|js)$"
   },

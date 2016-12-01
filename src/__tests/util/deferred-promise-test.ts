@@ -1,6 +1,6 @@
-import "./helpers/base-test";
+import "../__helpers/base-test";
 
-import DeferredPromise from "../util/deferred-promise";
+import DeferredPromise from "../../util/deferred-promise";
 
 test("can resolve void", (done) => {
     const deferred = new DeferredPromise();
