@@ -11,7 +11,7 @@ import { ClusterInfo, NodeId, NodeInfo } from "../net/cluster-state";
 import { ActorDirectory } from "./actor-directory";
 import { ActorExecution } from "./actor-execution";
 import { ActorPlacement } from "./actor-placement";
-import { ActorId, ActorType } from "./actor-types";
+import { ActorId, ActorRequestType, ActorType } from "./actor-types";
 
 const ACTOR_SUBSYSTEM = "actor";
 
@@ -23,6 +23,7 @@ enum ActorMessageType {
 
 type ActorMessage = {
     messageType: ActorMessageType,
+    requestType?: ActorRequestType,
     actorType: ActorType,
     actorId: ActorId,
     contents: any,
@@ -69,7 +70,8 @@ class ActorMessaging {
     }
 
     public async sendActorRequest(
-        actorType: ActorType, actorId: ActorId, contents: any, oneWay = false, respondTo?: NodeId
+        actorType: ActorType, actorId: ActorId, contents: any, oneWay = false,
+        requestType: ActorRequestType = ActorRequestType.USER_MESSAGE, respondTo?: NodeId
     ): Promise<any> {
 
         // Find or place actor
@@ -91,6 +93,7 @@ class ActorMessaging {
         respondTo = respondTo === undefined ? this.clusterInfo.localNode.nodeId : respondTo;
         const actorMessage: ActorMessage = {
             messageType: ActorMessageType.REQUEST,
+            requestType,
             actorType,
             actorId,
             contents,
@@ -154,7 +157,11 @@ class ActorMessaging {
         // Do we actually own it?
         const actorOwner = await this.actorDirectory.getActorLocation(message.actorType, message.actorId);
         if (actorOwner === this.clusterInfo.localNode.nodeId) {
-            const result = await this.actorExecution.onMessage(message.actorType, message.actorId, message.contents);
+            let result: any;
+            result = await this.actorExecution.onMessage(
+                        message.actorType, message.actorId,
+                        message.requestType, message.contents
+                    );
             if (!result.rejected) {
                 const reponse = await result.promise;
                 return { proxiedMessage: false, response: reponse };
@@ -166,7 +173,10 @@ class ActorMessaging {
         // We need to tell execution
         this.actorExecution.deactivate(message.actorType, message.actorId);
         // We are going to forward this to be placed again
-        await this.sendActorRequest(message.actorType, message.actorId, message.contents, true, message.respondTo);
+        await this.sendActorRequest(
+                message.actorType, message.actorId, message.contents, true,
+                message.requestType, message.respondTo
+            );
         return { proxiedMessage: true, response: null };
     }
 

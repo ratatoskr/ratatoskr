@@ -18,7 +18,8 @@ enum JobType {
     MESSAGE,
     ACTIVATED,
     DEACTIVATED,
-    TIMER
+    TIMER,
+    REMINDER
 };
 
 class ActorActivation {
@@ -62,6 +63,22 @@ class ActorActivation {
                 contents,
                 deferred: new DeferredPromise(),
                 jobType: JobType.MESSAGE
+            };
+
+            this.queue.push(task);
+
+            return { rejected: false, promise: task.deferred.promise };
+        }
+
+        return { rejected: true };
+    }
+
+    public async onReminder(contents: string) {
+        if (this.acceptingWork) {
+            const task: ActivationJob = {
+                contents,
+                deferred: new DeferredPromise(),
+                jobType: JobType.REMINDER
             };
 
             this.queue.push(task);
@@ -137,6 +154,12 @@ class ActorActivation {
                 case JobType.MESSAGE:
                     if (this.actorInstance.onMessage) {
                         result = this.actorInstance.onMessage(task.contents, this.actorContext);
+                    }
+                    break;
+
+                case JobType.REMINDER:
+                     if (this.actorInstance.onReminder) {
+                        result = this.actorInstance.onReminder(task.contents, this.actorContext);
                     }
                     break;
 

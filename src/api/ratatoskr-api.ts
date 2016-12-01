@@ -2,7 +2,7 @@ import { Container } from "inversify";
 import { ActorFactory } from "../actor/actor-factory";
 import { ActorMessaging } from "../actor/actor-messaging";
 import { ActorId, ActorType } from "../actor/actor-types";
-import {ClusterInfo, NodeInfo} from "../net/cluster-state";
+import { ClusterInfo, NodeInfo } from "../net/cluster-state";
 import { Server } from "../server";
 import { Types } from "../types";
 

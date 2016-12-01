@@ -8,7 +8,7 @@ import { Time } from "../util/time";
 import { ActivationMessageResult, ActorActivation } from "./actor-activation";
 import { ActorDirectory } from "./actor-directory";
 import { ActorFactory } from "./actor-factory";
-import { ActorId, ActorType } from "./actor-types";
+import { ActorId, ActorRequestType, ActorType } from "./actor-types";
 
 @injectable()
 class ActorExecution {
@@ -38,19 +38,29 @@ class ActorExecution {
         this.activations = {};
     }
 
-    public async onMessage(actorType: ActorType, actorId: ActorId, contents: any): ActivationMessageResult {
+    public async onMessage(
+            actorType: ActorType, actorId: ActorId,
+            requestType: ActorRequestType, contents: any
+        ): ActivationMessageResult {
         const expiryResult = await this.updateExpiry(actorType, actorId);
 
         if (expiryResult.expiryUpdated) {
             const activation = await this.getOrActivate(actorType, actorId);
             activation.expireTime = Time.currentTime() + expiryResult.expireIn;
-            return activation.onMessage(contents);
+            switch (requestType) {
+                case ActorRequestType.USER_MESSAGE:
+                    return activation.onMessage(contents);
+                case ActorRequestType.REMINDER:
+                    return activation.onReminder(contents);
+                default:
+                    break;
+            }
         }
 
         return { rejected: true, promise: null };
     }
 
-        public async killExpiredActors() {
+    public async killExpiredActors() {
         const toBeRemoved: string[] = [];
         for (const activationKey in this.activations) {
             const activation = this.activations[activationKey];

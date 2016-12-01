@@ -1,4 +1,5 @@
 import { RatatoskrAPI } from "../api/ratatoskr-api";
+import { Types } from "../types";
 import { ActorActivation } from "./actor-activation";
 import { ActorId, ActorType } from "./actor-types";
 
@@ -21,6 +22,10 @@ class ActorContext {
 
     public unregisterTimer(name: string) {
         this.activation.unregisterTimer(name);
+    }
+
+    public registerReminder(name: string, triggerSecs: number) {
+        // TODO: Implement
     }
 }
 
