@@ -2,7 +2,8 @@ import { Container } from "inversify";
 import { ActorFactory } from "../actor/actor-factory";
 import { ActorMessaging } from "../actor/actor-messaging";
 import { ActorId, ActorType } from "../actor/actor-types";
-import {ClusterInfo, NodeInfo} from "../net/cluster-state";
+import { Config } from "../config/config";
+import { ClusterInfo, NodeInfo } from "../net/cluster-state";
 import { Server } from "../server";
 import { Types } from "../types";
 
@@ -46,6 +47,10 @@ class RatatoskrAPI {
 
     public clusterInfo(): ClusterInfo {
         return this.container.get<ClusterInfo>(Types.Cluster.ClusterInfo);
+    }
+
+    public config(): any {
+        return this.container.get<Config>(Types.FullConfig);
     }
 
     public getServer(): Server {

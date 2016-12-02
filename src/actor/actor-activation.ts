@@ -18,7 +18,8 @@ enum JobType {
     MESSAGE,
     ACTIVATED,
     DEACTIVATED,
-    TIMER
+    TIMER,
+    REMINDER
 };
 
 class ActorActivation {
@@ -28,7 +29,7 @@ class ActorActivation {
     private actorInstance: any;
     private queue: AsyncQueue<any>;
     private actorContext: ActorContext;
-    private timers: {[key: string]: NodeJS.Timer};
+    private timers: { [key: string]: { timerHandle: NodeJS.Timer, recurring: boolean } };
 
     private acceptingWork: boolean;
 
@@ -72,6 +73,22 @@ class ActorActivation {
         return { rejected: true };
     }
 
+    public async onReminder(contents: string) {
+        if (this.acceptingWork) {
+            const task: ActivationJob = {
+                contents,
+                deferred: new DeferredPromise(),
+                jobType: JobType.REMINDER
+            };
+
+            this.queue.push(task);
+
+            return { rejected: false, promise: task.deferred.promise };
+        }
+
+        return { rejected: true };
+    }
+
     public async onDeactivate() {
         this.acceptingWork = false;
 
@@ -88,7 +105,7 @@ class ActorActivation {
         return result;
     }
 
-    public registerTimer(name: string, intervalMs: number, recurring: boolean, callback: (...args: any[]) => void) {
+    public registerTimer(name: string, delayMs: number, recurring: boolean, callback: (...args: any[]) => void) {
 
         const jobCallback = (job: ActivationJob) => {
             this.queue.push(job);
@@ -107,25 +124,29 @@ class ActorActivation {
         }
 
         if (recurring) {
-            timerHandle = setInterval(jobCallback, intervalMs, realJob);
+            timerHandle = setInterval(jobCallback, delayMs, realJob);
         } else {
-            timerHandle = setTimeout(jobCallback, intervalMs, realJob);
+            timerHandle = setTimeout(jobCallback, delayMs, realJob);
         }
 
-        this.timers[name] = timerHandle;
+        this.timers[name] = { timerHandle, recurring };
     }
 
     public unregisterTimer(name: string) {
-        if (this.timers[name]) {
-            clearInterval(this.timers[name]);
+        const timer = this.timers[name];
+        if (timer) {
+            if (timer.recurring) {
+                clearInterval(timer.timerHandle);
+            } else {
+                clearTimeout(timer.timerHandle);
+            }
             delete this.timers[name];
         }
     }
 
     private stopAllTimers() {
-        for (const timer in this.timers) {
-            clearInterval(this.timers[timer]);
-            delete this.timers[timer];
+        for (const name in this.timers) {
+            this.unregisterTimer(name);
         }
     }
 
@@ -137,6 +158,12 @@ class ActorActivation {
                 case JobType.MESSAGE:
                     if (this.actorInstance.onMessage) {
                         result = this.actorInstance.onMessage(task.contents, this.actorContext);
+                    }
+                    break;
+
+                case JobType.REMINDER:
+                    if (this.actorInstance.onReminder) {
+                        result = this.actorInstance.onReminder(task.contents, this.actorContext);
                     }
                     break;
 

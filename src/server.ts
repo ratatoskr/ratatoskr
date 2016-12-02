@@ -25,6 +25,7 @@ import ActorExecution from "./actor/actor-execution";
 import ActorFactory from "./actor/actor-factory";
 import ActorMessaging from "./actor/actor-messaging";
 import ActorPlacement from "./actor/actor-placement";
+import ActorReminders from "./actor/actor-reminders";
 
 // API
 import RatatoskrAPI from "./api/ratatoskr-api";
@@ -58,6 +59,10 @@ class Server {
         const clusterDirectory = this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory);
         await clusterDirectory.updateCluster();
 
+        // Start reminder system
+        const actorReminders = this.container.get<ActorReminders>(Types.Actor.ActorReminders);
+        actorReminders.initReminderActor();
+
         // Flip our state to running and write to directory
         clusterInfo.localNode.nodeStatus = ClusterState.NodeStatus.RUNNING;
         await clusterDirectory.updateCluster();
@@ -72,7 +77,7 @@ class Server {
         return this.api;
     }
 
-        public async stop() {
+    public async stop() {
         Logger.info("Stopping Ratatoskr server...");
 
         const clusterDirectory = this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory);
@@ -102,11 +107,12 @@ class Server {
         await this.container.get<ClusterDirectory>(Types.Cluster.ClusterDirectory).updateCluster();
         await this.container.get<ActorMessaging>(Types.Actor.ActorMessaging).updatePendingMessages();
         await this.container.get<ActorExecution>(Types.Actor.ActorExecution).killExpiredActors();
+        await this.container.get<ActorReminders>(Types.Actor.ActorReminders).pingReminders();
     }
 
     private internalPulse() {
         this.pulse().catch((error) => {
-            Logger.error(`Pulse Error: ${error}`);
+            Logger.error("Pulse Error:", error);
         });
     }
 
@@ -161,6 +167,7 @@ class Server {
         this.container.bind<ActorFactory>(Types.Actor.ActorFactory).to(ActorFactory).inSingletonScope();
         this.container.bind<ActorMessaging>(Types.Actor.ActorMessaging).to(ActorMessaging).inSingletonScope();
         this.container.bind<ActorExecution>(Types.Actor.ActorExecution).to(ActorExecution).inSingletonScope();
+        this.container.bind<ActorReminders>(Types.Actor.ActorReminders).to(ActorReminders).inSingletonScope();
 
         // API
         this.api = new RatatoskrAPI(this, this.container);
