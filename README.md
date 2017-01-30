@@ -1,8 +1,8 @@
 <a href="http://www.ratatoskr.io"><img src="http://www.ratatoskr.io/logos/logo-text-regular.png" alt="ratatoskr logo"/></a>
 ============
-[![Build Status](https://secure.travis-ci.org/JoeHegarty/ratatoskr.svg?branch=master)](https://travis-ci.org/JoeHegarty/ratatoskr)
-[![Dependency Status](https://david-dm.org/JoeHegarty/ratatoskr.svg)](https://david-dm.org/JoeHegarty/ratatoskr)
-[![devDependency Status](https://david-dm.org/JoeHegarty/ratatoskr/dev-status.svg)](https://david-dm.org/JoeHegarty/ratatoskr#info=devDependencies)
+[![Build Status](https://secure.travis-ci.org/ratatoskr/ratatoskr.svg?branch=master)](https://travis-ci.org/ratatoskr/ratatoskr)
+[![Dependency Status](https://david-dm.org/ratatoskr/ratatoskr.svg)](https://david-dm.org/ratatoskr/ratatoskr)
+[![devDependency Status](https://david-dm.org/ratatoskr/ratatoskr/dev-status.svg)](https://david-dm.org/ratatoskr/ratatoskr#info=devDependencies)
 [![NPM version](https://badge.fury.io/js/ratatoskr.svg)](https://www.npmjs.com/package/ratatoskr)
 
 *Note: This library is highly experimental.*
