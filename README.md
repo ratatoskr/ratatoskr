@@ -2,7 +2,7 @@
 ============
 [![Build Status](https://secure.travis-ci.org/ratatoskr/ratatoskr.svg?branch=master)](https://travis-ci.org/ratatoskr/ratatoskr)
 [![Dependency Status](https://david-dm.org/ratatoskr/ratatoskr.svg)](https://david-dm.org/ratatoskr/ratatoskr)
-[![devDependency Status](https://david-dm.org/ratatoskr/ratatoskr/dev-status.svg)](https://david-dm.org/ratatoskr/ratatoskr#info=devDependencies)
+[![devDependency Status](https://david-dm.org/ratatoskr/ratatoskr/dev-status.svg)](https://david-dm.org/ratatoskr/ratatoskr?type=dev)
 [![NPM version](https://badge.fury.io/js/ratatoskr.svg)](https://www.npmjs.com/package/ratatoskr)
 
 *Note: This library is highly experimental.*
