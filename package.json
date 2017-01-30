@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JoeHegarty/ratatoskr.git"
+    "url": "git+https://github.com/ratatoskr/ratatoskr.git"
   },
   "author": "Joe Hegarty <joe.hegarty@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JoeHegarty/ratatoskr/issues"
+    "url": "https://github.com/ratatoskr/ratatoskr/issues"
   },
   "homepage": "http://www.ratatoskr.io",
   "devDependencies": {
