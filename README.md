@@ -1,4 +1,4 @@
-<a href="http://www.ratatoskr.io"><img src="http://www.ratatoskr.io/logos/logo-text-regular.png" alt="ratatoskr logo"/></a>
+<a href="http://www.ratatoskr.io"><img src="http://www.ratatoskr.io/ratatoskr_logo.png" alt="Ratatoskr" height="150px"/></a>
 ============
 [![Build Status](https://secure.travis-ci.org/ratatoskr/ratatoskr.svg?branch=master)](https://travis-ci.org/ratatoskr/ratatoskr)
 [![Dependency Status](https://david-dm.org/ratatoskr/ratatoskr.svg)](https://david-dm.org/ratatoskr/ratatoskr)
