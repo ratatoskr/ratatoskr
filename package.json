@@ -1,68 +1,27 @@
 {
   "name": "ratatoskr",
-  "version": "0.0.8",
-  "description": "lightweight virtual actors for node.js",
-  "main": "target/ratatoskr.js",
-  "typings": "target/ratatoskr.d.ts",
-  "scripts": {
-    "clean": "rm -rf target/",
-    "lint": "tslint -c tslint.json src/**/*.ts",
-    "build": "tsc --declaration --outdir target/ ",
-    "cleanBuild": "npm run clean && npm run lint && npm run build",
-    "prepublish": "npm run cleanBuild",
-    "exec": "node target/ratatoskr",
-    "start": "npm run cleanBuild && npm run exec",
-    "test": "npm run cleanBuild && jest --forceExit"
-  },
+  "version": "0.1.0",
+  "description": "A lightweight virtual actor framework for Node.",
+  "author": "Joe Hegarty",
+  "license": "MIT",
+  "homepage": "https://www.ratatoskr.io",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ratatoskr/ratatoskr.git"
   },
-  "author": "Joe Hegarty <joe.hegarty@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ratatoskr/ratatoskr/issues"
-  },
-  "homepage": "http://www.ratatoskr.io",
-  "devDependencies": {
-    "@types/jest": "^16.0.0",
-    "@types/node": "^6.0.49",
-    "jest": "^17.0.3",
-    "tslint": "^4.0.2",
-    "typescript": "^2.0.10"
-  },
-  "dependencies": {
-    "@types/async": "^2.0.34",
-    "@types/redis": "^0.12.33",
-    "@types/winston": "0.0.32",
-    "async": "^2.0.34",
-    "inversify": "^3.0.0-beta.2",
-    "redis": "^2.6.3",
-    "reflect-metadata": "^0.1.8",
-    "winston": "^2.3.0"
-  },
-  "files": [
-    "src/",
-    "target/",
-    "LICENSE",
-    "README.md"
-  ],
-  "jest": {
-    "testPathDirs": [
-      "target/"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/target/__tests/__helpers"
-    ],
-    "testRegex": "__tests/.*\\.(ts|tsx|js)$"
-  },
   "keywords": [
-    "actor",
-    "realtime",
-    "distributed",
-    "distributed systems",
-    "actor model",
-    "virtual actors",
-    "virtual actor"
-  ]
+    "actors"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist/",
+    "build": "tsc",
+    "start": "noode dist/index.js"
+  },
+  "devDependencies": {
+    "typescript": "^3.7.5"
+  }
 }

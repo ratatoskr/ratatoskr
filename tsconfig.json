@@ -1,15 +1,11 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "target": "es6",
-        "types": ["reflect-metadata", "jest"],
+        "outDir": "./dist/",
         "sourceMap": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "noImplicitAny": true
-    },
-    "include": [
-        "src/**/*"
-    ]
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es6",
+        "declaration": true,
+        "esModuleInterop": true
+    }
 }
